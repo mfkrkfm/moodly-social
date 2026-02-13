@@ -2,8 +2,6 @@ package com.example.moodly_social_api.controller;
 
 import com.example.moodly_social_api.dto.LoginRequest;
 import com.example.moodly_social_api.dto.SignupRequest;
-import com.example.moodly_social_api.dto.UserResponse;
-import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,14 +31,5 @@ public class UserController {
     public String delete(@PathVariable String username) {
         userService.delete(username);
         return username;
-    }
-
-    private UserResponse mapToResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setId(user.getId());
-        response.setUsername(user.getUsername());
-        response.setEmail(user.getEmail());
-        response.setAppUserRoles(user.getAppUserRoles());
-        return response;
     }
 }
