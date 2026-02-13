@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-public class UserController {
+public class AuthController {
 
     private final UserService userService;
 
