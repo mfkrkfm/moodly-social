@@ -37,7 +37,6 @@ public class AuthService {
     }
 
     public String signup(SignupRequest signupRequest) {
-        // Check uniqueness
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             throw new CustomException("Username already taken", HttpStatus.CONFLICT);
         }
@@ -45,7 +44,6 @@ public class AuthService {
             throw new CustomException("Email already registered", HttpStatus.CONFLICT);
         }
 
-        // Create new user with default role CLIENT
         User user = new User();
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
