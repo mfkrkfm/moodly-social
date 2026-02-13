@@ -6,6 +6,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.validation.FieldError;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -15,24 +16,19 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     // Custom Business Exceptions
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
+    @ExceptionHandler(CustomException.class)
+    public ProblemDetail handleCustomException(CustomException ex, HttpServletRequest request) {
 
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getHttpStatus());
 
-        problemDetail.setTitle("Validation Failed");
-
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-
-        problemDetail.setProperty("errors", errors);
+        problemDetail.setTitle(ex.getHttpStatus().getReasonPhrase());
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
 
         return problemDetail;
     }
 
-    // Uncought errors
+    // Fallback Exception
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleAllUncaught(Exception ex, HttpServletRequest request) {
 
@@ -41,6 +37,29 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Internal Server Error");
         problemDetail.setDetail("An unexpected error occurred");
         problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        return problemDetail;
+    }
+
+    // Validation fails
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+
+        problemDetail.setTitle("Validation Failed");
+        problemDetail.setDetail("Request validation failed");
+        problemDetail.setType(URI.create("https://example.com/validation-error"));
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        problemDetail.setProperty("errors", errors);
 
         return problemDetail;
     }

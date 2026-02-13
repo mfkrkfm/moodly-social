@@ -27,12 +27,18 @@ public class AuthService {
 
     public String signin(String username, String password) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
-            return jwtTokenProvider.createToken(username, user.getAppUserRoles());
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+
+            return jwtTokenProvider.createToken(username,
+                    userRepository.findByUsername(username)
+                            .orElseThrow()
+                            .getAppUserRoles());
+
         } catch (AuthenticationException e) {
-            throw new CustomException("Invalid username/password", HttpStatus.UNAUTHORIZED);
+            throw new CustomException("Invalid username or password",
+                    HttpStatus.UNAUTHORIZED);
         }
     }
 
