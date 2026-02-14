@@ -47,7 +47,7 @@ public class User {
     @Column(name = "role")
     private List<UserRole> appUserRoles = new ArrayList<>();
 
-    // Convenience method to convert to Spring Security authorities
+
     public Collection<GrantedAuthority> getAuthorities() {
         return appUserRoles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.name()))

@@ -1,9 +1,11 @@
 package com.example.moodly_social_api.controller;
 
+import com.example.moodly_social_api.dto.AuthResponse;
 import com.example.moodly_social_api.dto.LoginRequest;
 import com.example.moodly_social_api.dto.SignupRequest;
 import com.example.moodly_social_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +19,15 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signin")
-    public String signin(@Valid @RequestBody LoginRequest loginRequest) {
-        return authService.signin(loginRequest.getUsername(), loginRequest.getPassword());
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.signin(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
-    public String signup(@Valid @RequestBody SignupRequest signupRequest) {
-        return authService.signup(signupRequest);
+    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
+        AuthResponse response = authService.signup(request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{username}")
