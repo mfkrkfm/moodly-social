@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // <-- Use this instead of @EnableGlobalMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
@@ -47,8 +47,6 @@ public class WebSecurityConfig {
             auth.anyRequest().authenticated();
         });
 
-        // Add JWT filter before UsernamePasswordAuthenticationFilter
-        // (JwtTokenFilterConfigurer is removed – add filter directly)
         http.addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         // Exception handling
@@ -67,14 +65,11 @@ public class WebSecurityConfig {
                 }
             });
 
-            // Modern security headers (HSTS, etc.)
+
             headers.httpStrictTransportSecurity(hsts -> hsts
                     .includeSubDomains(true)
                     .maxAgeInSeconds(31536000)
             );
-
-            // xssProtection and contentTypeOptions are enabled by default in Spring Security 6,
-            // but you can explicitly configure them if needed.
         });
 
         return http.build();

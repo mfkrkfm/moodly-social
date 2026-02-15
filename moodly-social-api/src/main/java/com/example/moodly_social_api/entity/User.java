@@ -38,12 +38,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    //TODO: move validation to dto
-
-    // Password must contain at least one digit, one lowercase, one uppercase, one special character, and length 8-100
     @NotBlank
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,100}$",
-            message = "Password must contain at least 8 characters, one digit, one lowercase, one uppercase, and one special character")
     @Column(nullable = false)
     private String password;
 
@@ -52,7 +47,7 @@ public class User {
     @Column(name = "role")
     private List<UserRole> appUserRoles = new ArrayList<>();
 
-    // Convenience method to convert to Spring Security authorities
+
     public Collection<GrantedAuthority> getAuthorities() {
         return appUserRoles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.name()))
