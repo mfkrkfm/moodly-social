@@ -1,8 +1,6 @@
 package com.example.moodly_social_api.service;
 
-import com.example.moodly_social_api.dto.AuthResponse;
-import com.example.moodly_social_api.dto.LoginRequest;
-import com.example.moodly_social_api.dto.SignupRequest;
+import com.example.moodly_social_api.dto.*;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.entity.UserRole;
 import com.example.moodly_social_api.exception.CustomException;
@@ -118,6 +116,20 @@ public class AuthService {
 
     private List<UserRole> getDefaultRoles() {
         return List.of(UserRole.ROLE_CLIENT);
+    }
+
+    public UserResponse getProfile(String currentUsername) {
+        throw new CustomException(
+                "Edit Profile not implemented yet",
+                HttpStatus.NOT_IMPLEMENTED
+        );
+    }
+
+    public UserResponse updateProfile(String currentUsername, UpdateProfileRequest request) {
+        throw new CustomException(
+                "Edit Profile not implemented yet",
+                HttpStatus.NOT_IMPLEMENTED
+        );
     }
 
 }
