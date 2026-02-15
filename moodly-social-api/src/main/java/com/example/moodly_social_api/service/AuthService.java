@@ -75,7 +75,7 @@ public class AuthService {
         }
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new CustomException("Email already registered", HttpStatus.CONFLICT);
+            throw new CustomException("Email already taken", HttpStatus.CONFLICT);
         }
 
         User user = new User();
