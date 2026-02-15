@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -33,9 +34,14 @@ public class JwtTokenProvider {
     }
 
     public String createToken(String username, List<UserRole> roles) {
+
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority()))
-                .collect(Collectors.toList()));
+
+        claims.put("auth",
+                roles.stream()
+                        .map(UserRole::getAuthority)   // <-- ONLY STRING
+                        .collect(Collectors.toList())
+        );
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -49,16 +55,28 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        String username = getUsername(token);
-        @SuppressWarnings("unchecked")
-        List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) Jwts.parserBuilder()
+
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .get("auth", List.class);
-        return new UsernamePasswordAuthenticationToken(username, "", authorities);
+                .getBody();
+
+        String username = claims.getSubject();
+
+        List<String> roles = claims.get("auth", List.class);
+
+        List<GrantedAuthority> authorities = roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        return new UsernamePasswordAuthenticationToken(
+                username,
+                null,
+                authorities
+        );
     }
+
 
     public String getUsername(String token) {
         return Jwts.parserBuilder()
