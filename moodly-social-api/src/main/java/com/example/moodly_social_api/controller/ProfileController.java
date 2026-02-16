@@ -2,7 +2,7 @@ package com.example.moodly_social_api.controller;
 
 import com.example.moodly_social_api.dto.UpdateProfileRequest;
 import com.example.moodly_social_api.dto.UserResponse;
-import com.example.moodly_social_api.service.UserProfileService;
+import com.example.moodly_social_api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProfileController {
 
-    private final UserProfileService userProfileService;
+    private final UserService userService;
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMyProfile(Authentication authentication) {
         String currentUsername = authentication.getName();
-        UserResponse profile = userProfileService.getProfile(currentUsername);
+        UserResponse profile = userService.getProfile(currentUsername);
         return ResponseEntity.ok(profile);
     }
 
@@ -29,7 +29,7 @@ public class ProfileController {
             @Valid @RequestBody UpdateProfileRequest request
     ) {
         String currentUsername = authentication.getName();
-        UserResponse updated = userProfileService.updateProfile(currentUsername, request);
+        UserResponse updated = userService.updateProfile(currentUsername, request);
         return ResponseEntity.ok(updated);
     }
 }
