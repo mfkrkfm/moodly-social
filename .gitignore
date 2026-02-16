@@ -1,2 +1,17 @@
-### Mac OS ###
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Maven
+target/
+
+# Gradle
+.gradle/
+build/
+
+# Logs
+*.log
+
+# OS files
 .DS_Store
+Thumbs.db
