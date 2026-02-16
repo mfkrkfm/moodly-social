@@ -75,7 +75,7 @@ public class AuthService {
         }
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new CustomException("Email already registered", HttpStatus.CONFLICT);
+            throw new CustomException("Email already taken", HttpStatus.CONFLICT);
         }
 
         User user = new User();
@@ -116,20 +116,6 @@ public class AuthService {
 
     private List<UserRole> getDefaultRoles() {
         return List.of(UserRole.ROLE_CLIENT);
-    }
-
-    public UserResponse getProfile(String currentUsername) {
-        throw new CustomException(
-                "Edit Profile not implemented yet",
-                HttpStatus.NOT_IMPLEMENTED
-        );
-    }
-
-    public UserResponse updateProfile(String currentUsername, UpdateProfileRequest request) {
-        throw new CustomException(
-                "Edit Profile not implemented yet",
-                HttpStatus.NOT_IMPLEMENTED
-        );
     }
 
 }
