@@ -35,7 +35,7 @@ public class Profile {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "picture_id", unique = true)
-    private Picture picture;
+    private Picture profilePicture;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "user-post")
