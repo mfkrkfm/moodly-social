@@ -118,18 +118,4 @@ public class AuthService {
         return List.of(UserRole.ROLE_CLIENT);
     }
 
-    public UserResponse getProfile(String currentUsername) {
-        throw new CustomException(
-                "Edit Profile not implemented yet",
-                HttpStatus.NOT_IMPLEMENTED
-        );
-    }
-
-    public UserResponse updateProfile(String currentUsername, UpdateProfileRequest request) {
-        throw new CustomException(
-                "Edit Profile not implemented yet",
-                HttpStatus.NOT_IMPLEMENTED
-        );
-    }
-
 }
