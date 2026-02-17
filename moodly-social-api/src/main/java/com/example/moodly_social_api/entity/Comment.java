@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,6 +25,8 @@ public class Comment {
     private String content;
 
     private LocalDateTime createdAt;
+
+    private boolean isEdited;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
@@ -42,5 +45,5 @@ public class Comment {
 
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "comment-thread")
-    private List<Comment> replies;
+    private List<Comment> replies = new ArrayList<>();
 }
