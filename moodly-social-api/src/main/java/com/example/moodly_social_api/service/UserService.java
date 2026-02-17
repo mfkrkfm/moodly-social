@@ -1,6 +1,6 @@
 package com.example.moodly_social_api.service;
 
-import com.example.moodly_social_api.dto.UpdateProfileRequest;
+import com.example.moodly_social_api.dto.UpdateUserRequest;
 import com.example.moodly_social_api.dto.UserResponse;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.exception.CustomException;
@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,8 @@ public class UserService {
         return toUserResponse(user);
     }
 
-    public UserResponse updateUser(String currentUsername, UpdateProfileRequest request) {
+    @Transactional
+    public UserResponse updateUser(String currentUsername, UpdateUserRequest request) {
         User user = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
@@ -47,8 +49,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
 
-        User savedUser = userRepository.save(user);
-        return toUserResponse(savedUser);
+        return toUserResponse(user);
     }
 
     private UserResponse toUserResponse(User user) {

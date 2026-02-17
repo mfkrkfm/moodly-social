@@ -1,6 +1,6 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.UpdateProfileRequest;
+import com.example.moodly_social_api.dto.UpdateUserRequest;
 import com.example.moodly_social_api.dto.UserResponse;
 import com.example.moodly_social_api.service.UserService;
 import jakarta.validation.Valid;
@@ -19,14 +19,14 @@ public class UserController {
     @GetMapping
     public ResponseEntity<UserResponse> getMyUser(Authentication authentication) {
         String currentUsername = authentication.getName();
-        UserResponse profile = userService.getUser(currentUsername);
-        return ResponseEntity.ok(profile);
+        UserResponse user = userService.getUser(currentUsername);
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping
     public ResponseEntity<UserResponse> updateMyUser(
             Authentication authentication,
-            @Valid @RequestBody UpdateProfileRequest request
+            @Valid @RequestBody UpdateUserRequest request
     ) {
         String currentUsername = authentication.getName();
         UserResponse updated = userService.updateUser(currentUsername, request);
