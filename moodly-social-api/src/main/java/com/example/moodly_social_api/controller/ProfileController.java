@@ -10,16 +10,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/me/profile")
 public class ProfileController {
 
-    @GetMapping("/me")
+    @GetMapping
     public ResponseEntity<UserProfileResponse> getMyProfileInfo(Authentication authentication) {
         String currentUsername = authentication.getName();
         throw new CustomException("Not implemented yet: getMyProfileInfo for " + currentUsername, HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @PutMapping("/me")
+    @PutMapping
     public ResponseEntity<UserProfileResponse> updateMyProfileInfo(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileInfoRequest request

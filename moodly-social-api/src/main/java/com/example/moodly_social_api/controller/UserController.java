@@ -10,20 +10,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/me/account")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/me")
+    @GetMapping
     public ResponseEntity<UserResponse> getMyUser(Authentication authentication) {
         String currentUsername = authentication.getName();
         UserResponse profile = userService.getUser(currentUsername);
         return ResponseEntity.ok(profile);
     }
 
-    @PutMapping("/me")
+    @PutMapping
     public ResponseEntity<UserResponse> updateMyUser(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request
