@@ -12,24 +12,24 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-public class ProfileController {
+public class UserController {
 
     private final UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMyProfile(Authentication authentication) {
+    public ResponseEntity<UserResponse> getMyUser(Authentication authentication) {
         String currentUsername = authentication.getName();
-        UserResponse profile = userService.getProfile(currentUsername);
+        UserResponse profile = userService.getUser(currentUsername);
         return ResponseEntity.ok(profile);
     }
 
     @PutMapping("/me")
-    public ResponseEntity<UserResponse> updateMyProfile(
+    public ResponseEntity<UserResponse> updateMyUser(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request
     ) {
         String currentUsername = authentication.getName();
-        UserResponse updated = userService.updateProfile(currentUsername, request);
+        UserResponse updated = userService.updateUser(currentUsername, request);
         return ResponseEntity.ok(updated);
     }
 }

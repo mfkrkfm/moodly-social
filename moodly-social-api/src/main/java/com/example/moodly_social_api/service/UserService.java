@@ -17,14 +17,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse getProfile(String currentUsername) {
+    public UserResponse getUser(String currentUsername) {
         User user = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         return toUserResponse(user);
     }
 
-    public UserResponse updateProfile(String currentUsername, UpdateProfileRequest request) {
+    public UserResponse updateUser(String currentUsername, UpdateProfileRequest request) {
         User user = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
