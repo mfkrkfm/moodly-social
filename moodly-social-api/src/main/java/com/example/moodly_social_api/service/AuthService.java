@@ -1,6 +1,7 @@
 package com.example.moodly_social_api.service;
 
 import com.example.moodly_social_api.dto.*;
+import com.example.moodly_social_api.entity.Profile;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.entity.UserRole;
 import com.example.moodly_social_api.exception.CustomException;
@@ -15,7 +16,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +57,8 @@ public class AuthService {
                     user.getId(),
                     user.getUsername(),
                     user.getEmail(),
-                    user.getAppUserRoles().getFirst().name()
+                    user.getAppUserRoles().getFirst().name(),
+                    user.getProfile().getId()
             );
 
         } catch (AuthenticationException e) {
@@ -86,6 +87,8 @@ public class AuthService {
         // Assign default role
         user.setAppUserRoles(getDefaultRoles());
 
+        user.setProfile(new Profile());
+
         User savedUser = userRepository.save(user);
 
         // Generate JWT
@@ -102,7 +105,8 @@ public class AuthService {
                 String.valueOf(savedUser.getAppUserRoles()
                         .stream()
                         .map(Enum::name)
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toList())),
+                savedUser.getProfile().getId()
         );
     }
 
