@@ -40,8 +40,8 @@ public class WebSecurityConfig {
 
         // Set permissions on endpoints
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/users/signin").permitAll();
-            auth.requestMatchers("/users/signup").permitAll();
+            auth.requestMatchers("/auth/signin").permitAll();
+            auth.requestMatchers("/auth/signup").permitAll();
 
             auth.requestMatchers("/admin/**").hasRole("ADMIN");
 

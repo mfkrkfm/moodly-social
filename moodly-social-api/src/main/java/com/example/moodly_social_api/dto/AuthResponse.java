@@ -10,13 +10,14 @@ public class AuthResponse {
     private String username;
     private String email;
     private String role;
+    private Long profileId;
 
-    public AuthResponse(String token, Long userId, String username, String email, String role) {
+    public AuthResponse(String token, Long userId, String username, String email, String role, Long profileId) {
         this.token = token;
         this.userId = userId;
         this.username = username;
         this.email = email;
         this.role = role;
-
+        this.profileId = profileId;
     }
 }

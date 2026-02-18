@@ -1,6 +1,6 @@
 package com.example.moodly_social_api.service;
 
-import com.example.moodly_social_api.dto.UpdateProfileRequest;
+import com.example.moodly_social_api.dto.UpdateUserRequest;
 import com.example.moodly_social_api.dto.UserResponse;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.exception.CustomException;
@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,15 +18,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse getProfile(String currentUsername) {
-        User user = userRepository.findByUsername(currentUsername)
+    public UserResponse getUser(Long currentUserId) {
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         return toUserResponse(user);
     }
 
-    public UserResponse updateProfile(String currentUsername, UpdateProfileRequest request) {
-        User user = userRepository.findByUsername(currentUsername)
+    @Transactional
+    public UserResponse updateUser(Long currentUserId, UpdateUserRequest request) {
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         String requestedUsername = request.getUsername();
@@ -47,8 +49,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
 
-        User savedUser = userRepository.save(user);
-        return toUserResponse(savedUser);
+        return toUserResponse(user);
     }
 
     private UserResponse toUserResponse(User user) {

@@ -1,9 +1,9 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.UpdateProfileRequest;
-import com.example.moodly_social_api.dto.ProfileResponse;
+import com.example.moodly_social_api.dto.UpdateUserRequest;
+import com.example.moodly_social_api.dto.UserResponse;
 import com.example.moodly_social_api.exception.CustomException;
-import com.example.moodly_social_api.service.ProfileService;
+import com.example.moodly_social_api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,26 +12,26 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/me/profile")
+@RequestMapping("/me/account")
 @RequiredArgsConstructor
-public class ProfileController {
+public class UserController {
 
-    private final ProfileService profileService;
+    private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<ProfileResponse> getMyProfileInfo(Authentication authentication) {
+    public ResponseEntity<UserResponse> getMyUser(Authentication authentication) {
         Long currentUserId = getCurrentUserId(authentication);
-        ProfileResponse profile = profileService.getProfile(currentUserId);
-        return ResponseEntity.ok(profile);
+        UserResponse user = userService.getUser(currentUserId);
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping
-    public ResponseEntity<ProfileResponse> updateMyProfileInfo(
+    public ResponseEntity<UserResponse> updateMyUser(
             Authentication authentication,
-            @Valid @RequestBody UpdateProfileRequest request
+            @Valid @RequestBody UpdateUserRequest request
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        ProfileResponse updated = profileService.updateProfile(currentUserId, request);
+        UserResponse updated = userService.updateUser(currentUserId, request);
         return ResponseEntity.ok(updated);
     }
 

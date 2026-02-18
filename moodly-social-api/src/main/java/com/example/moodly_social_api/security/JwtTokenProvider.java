@@ -33,9 +33,9 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String createToken(String username, List<UserRole> roles) {
+    public String createToken(Long userId, List<UserRole> roles) {
 
-        Claims claims = Jwts.claims().setSubject(username);
+        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
 
         claims.put("auth",
                 roles.stream()
@@ -62,7 +62,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
-        String username = claims.getSubject();
+        String userId = claims.getSubject();
 
         List<String> roles = claims.get("auth", List.class);
 
@@ -71,7 +71,7 @@ public class JwtTokenProvider {
                 .collect(Collectors.toList());
 
         return new UsernamePasswordAuthenticationToken(
-                username,
+                userId,
                 null,
                 authorities
         );
