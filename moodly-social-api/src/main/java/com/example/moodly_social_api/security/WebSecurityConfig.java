@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -42,6 +43,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/auth/signin").permitAll();
             auth.requestMatchers("/auth/signup").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/{username}").permitAll();
 
             auth.requestMatchers("/admin/**").hasRole("ADMIN");
 
