@@ -1,6 +1,9 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.*;
+import com.example.moodly_social_api.dto.post.CreatePostRequest;
+import com.example.moodly_social_api.dto.post.LikeResponse;
+import com.example.moodly_social_api.dto.post.PostResponse;
+import com.example.moodly_social_api.dto.post.UpdatePostRequest;
 import com.example.moodly_social_api.exception.CustomException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

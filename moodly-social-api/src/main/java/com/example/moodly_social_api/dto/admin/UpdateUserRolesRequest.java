@@ -1,4 +1,4 @@
-package com.example.moodly_social_api.dto;
+package com.example.moodly_social_api.dto.admin;
 
 import com.example.moodly_social_api.entity.UserRole;
 import jakarta.validation.constraints.NotEmpty;

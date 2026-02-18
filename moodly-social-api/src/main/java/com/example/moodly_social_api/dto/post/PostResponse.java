@@ -1,4 +1,4 @@
-package com.example.moodly_social_api.dto;
+package com.example.moodly_social_api.dto.post;
 
 import com.example.moodly_social_api.entity.Mood;
 import lombok.Data;

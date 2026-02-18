@@ -1,4 +1,4 @@
-package com.example.moodly_social_api.dto;
+package com.example.moodly_social_api.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

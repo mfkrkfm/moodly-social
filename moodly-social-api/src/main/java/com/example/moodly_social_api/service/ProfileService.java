@@ -1,7 +1,7 @@
 package com.example.moodly_social_api.service;
 
-import com.example.moodly_social_api.dto.ProfileResponse;
-import com.example.moodly_social_api.dto.UpdateProfileRequest;
+import com.example.moodly_social_api.dto.profile.ProfileResponse;
+import com.example.moodly_social_api.dto.profile.UpdateProfileRequest;
 import com.example.moodly_social_api.entity.Profile;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.exception.CustomException;
