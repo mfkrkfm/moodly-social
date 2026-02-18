@@ -1,9 +1,8 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.post.CreatePostRequest;
+import com.example.moodly_social_api.dto.post.PostRequest;
 import com.example.moodly_social_api.dto.post.LikeResponse;
 import com.example.moodly_social_api.dto.post.PostResponse;
-import com.example.moodly_social_api.dto.post.UpdatePostRequest;
 import com.example.moodly_social_api.exception.CustomException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,7 @@ public class PostController {
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
             Authentication authentication,
-            @Valid @RequestBody CreatePostRequest request
+            @Valid @RequestBody PostRequest request
     ) {
         String currentUsername = authentication.getName();
         throw new CustomException("Not implemented yet: createPost", HttpStatus.NOT_IMPLEMENTED);
@@ -43,12 +42,11 @@ public class PostController {
         throw new CustomException("Not implemented yet: getPostById", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    // UPDATE: PUT /posts/{postId}
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(
             Authentication authentication,
             @PathVariable Long postId,
-            @Valid @RequestBody UpdatePostRequest request
+            @Valid @RequestBody PostRequest request
     ) {
         String currentUsername = authentication.getName();
         throw new CustomException("Not implemented yet: updatePost", HttpStatus.NOT_IMPLEMENTED);

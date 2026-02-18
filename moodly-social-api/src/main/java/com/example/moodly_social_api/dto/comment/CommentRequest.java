@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class CreateCommentRequest {
+public class CommentRequest {
 
     @NotBlank
     @Size(max = 1000)

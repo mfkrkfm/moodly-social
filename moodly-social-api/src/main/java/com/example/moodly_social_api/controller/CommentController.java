@@ -17,7 +17,7 @@ public class CommentController {
     public ResponseEntity<CommentResponse> createComment(
             Authentication authentication,
             @PathVariable Long postId,
-            @Valid @RequestBody CreateCommentRequest request
+            @Valid @RequestBody CommentRequest request
     ) {
         String currentUsername = authentication.getName();
         throw new CustomException("Not implemented yet: createComment", HttpStatus.NOT_IMPLEMENTED);
@@ -34,7 +34,7 @@ public class CommentController {
     public ResponseEntity<CommentResponse> updateComment(
             Authentication authentication,
             @PathVariable Long commentId,
-            @Valid @RequestBody CreateCommentRequest request
+            @Valid @RequestBody CommentRequest request
     ) {
         String currentUsername = authentication.getName();
         throw new CustomException("Not implemented yet: updateComment", HttpStatus.NOT_IMPLEMENTED);
