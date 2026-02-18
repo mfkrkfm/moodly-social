@@ -2,9 +2,11 @@ package com.example.moodly_social_api.controller;
 
 import com.example.moodly_social_api.dto.UpdateUserRequest;
 import com.example.moodly_social_api.dto.UserResponse;
+import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +20,8 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserResponse> getMyUser(Authentication authentication) {
-        String currentUsername = authentication.getName();
-        UserResponse user = userService.getUser(currentUsername);
+        Long currentUserId = getCurrentUserId(authentication);
+        UserResponse user = userService.getUser(currentUserId);
         return ResponseEntity.ok(user);
     }
 
@@ -28,8 +30,16 @@ public class UserController {
             Authentication authentication,
             @Valid @RequestBody UpdateUserRequest request
     ) {
-        String currentUsername = authentication.getName();
-        UserResponse updated = userService.updateUser(currentUsername, request);
+        Long currentUserId = getCurrentUserId(authentication);
+        UserResponse updated = userService.updateUser(currentUserId, request);
         return ResponseEntity.ok(updated);
+    }
+
+    private Long getCurrentUserId(Authentication authentication) {
+        try {
+            return Long.parseLong(authentication.getName());
+        } catch (NumberFormatException ex) {
+            throw new CustomException("Invalid token subject", HttpStatus.UNAUTHORIZED);
+        }
     }
 }

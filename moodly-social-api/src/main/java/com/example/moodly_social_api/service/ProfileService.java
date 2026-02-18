@@ -18,8 +18,8 @@ public class ProfileService  {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public ProfileResponse getProfile(String currentUsername) {
-        User user = userRepository.findByUsername(currentUsername)
+    public ProfileResponse getProfile(Long currentUserId) {
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         Profile profile = user.getProfile();
@@ -31,8 +31,8 @@ public class ProfileService  {
     }
 
     @Transactional
-    public ProfileResponse updateProfile(String currentUsername, UpdateProfileRequest request) {
-        User user = userRepository.findByUsername(currentUsername)
+    public ProfileResponse updateProfile(Long currentUserId, UpdateProfileRequest request) {
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
         Profile profile = user.getProfile();
         if (profile == null) {

@@ -48,7 +48,7 @@ public class AuthService {
                     ));
 
             String token = jwtTokenProvider.createToken(
-                    user.getUsername(),
+                    user.getId(),
                     user.getAppUserRoles()
             );
 
@@ -93,7 +93,7 @@ public class AuthService {
 
         // Generate JWT
         String token = jwtTokenProvider.createToken(
-                savedUser.getUsername(),
+                savedUser.getId(),
                 savedUser.getAppUserRoles()
         );
 

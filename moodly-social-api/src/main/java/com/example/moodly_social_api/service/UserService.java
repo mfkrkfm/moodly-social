@@ -18,16 +18,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse getUser(String currentUsername) {
-        User user = userRepository.findByUsername(currentUsername)
+    public UserResponse getUser(Long currentUserId) {
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         return toUserResponse(user);
     }
 
     @Transactional
-    public UserResponse updateUser(String currentUsername, UpdateUserRequest request) {
-        User user = userRepository.findByUsername(currentUsername)
+    public UserResponse updateUser(Long currentUserId, UpdateUserRequest request) {
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         String requestedUsername = request.getUsername();
