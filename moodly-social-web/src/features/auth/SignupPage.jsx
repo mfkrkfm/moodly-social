@@ -5,6 +5,7 @@ import { saveAuth } from "./authStore";
 
 export default function SignupPage() {
   const navigate = useNavigate();
+<<<<<<< Updated upstream
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -12,10 +13,14 @@ export default function SignupPage() {
 
   const strongPassword =
     /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\S+$).{8,100}$/;
+=======
+  const [error, setError] = useState(null);
+>>>>>>> Stashed changes
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+<<<<<<< Updated upstream
     setLoading(true);
 
     const form = new FormData(e.target);
@@ -56,6 +61,22 @@ export default function SignupPage() {
       setError(msg);
     } finally {
       setLoading(false);
+=======
+
+    const form = new FormData(e.target);
+    const payload = {
+      username: form.get("username"),
+      email: form.get("email"),
+      password: form.get("password"),
+    };
+
+    try {
+      const response = await signup(payload);
+      saveAuth(response.accessToken);
+      navigate("/feed");
+    } catch (err) {
+      setError("Signup failed");
+>>>>>>> Stashed changes
     }
   }
 
@@ -64,6 +85,7 @@ export default function SignupPage() {
       <div className="auth-title">Create account</div>
 
       <form onSubmit={handleSubmit}>
+<<<<<<< Updated upstream
         <input
           className="auth-input"
           name="username"
@@ -119,6 +141,15 @@ export default function SignupPage() {
         <button className="auth-button" disabled={loading}>
           {loading ? "Creating..." : "Sign up"}
         </button>
+=======
+        <input className="auth-input" name="username" placeholder="Username" required />
+        <input className="auth-input" name="email" type="email" placeholder="Email" required />
+        <input className="auth-input" name="password" type="password" placeholder="Password" required />
+
+        {error && <div className="auth-error">{error}</div>}
+
+        <button className="auth-button">Sign up</button>
+>>>>>>> Stashed changes
 
         <p style={{ marginTop: "15px" }}>
           Already have an account?{" "}
