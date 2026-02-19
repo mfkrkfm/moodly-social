@@ -11,24 +11,25 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/{username}")
 public class PublicProfileController {
 
-    @GetMapping("/{username}")
+    @GetMapping
     public ResponseEntity<PublicProfileResponse> getPublicProfile(@PathVariable String username) {
         throw new CustomException("Not implemented yet: getPublicProfile", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @GetMapping("/{username}/posts")
+    @GetMapping("/posts")
     public ResponseEntity<List<PostResponse>> getUserPosts(@PathVariable String username) {
         throw new CustomException("Not implemented yet: getUserPosts", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @GetMapping("/{username}/followers")
+    @GetMapping("/followers")
     public ResponseEntity<List<PublicUserCardResponse>> getFollowers(@PathVariable String username) {
         throw new CustomException("Not implemented yet: getFollowers", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @GetMapping("/{username}/following")
+    @GetMapping("/following")
     public ResponseEntity<List<PublicUserCardResponse>> getFollowing(@PathVariable String username) {
         throw new CustomException("Not implemented yet: getFollowing", HttpStatus.NOT_IMPLEMENTED);
     }

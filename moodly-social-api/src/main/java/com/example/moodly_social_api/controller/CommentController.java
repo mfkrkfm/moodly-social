@@ -11,41 +11,63 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/posts/{postId}/comments/")
 public class CommentController {
 
-    @PostMapping("/posts/{postId}/comments")
+    @PostMapping
     public ResponseEntity<CommentResponse> createComment(
             Authentication authentication,
             @PathVariable Long postId,
             @Valid @RequestBody CommentRequest request
     ) {
-        String currentUsername = authentication.getName();
+        Long currentUserId = getCurrentUserId(authentication);
         throw new CustomException("Not implemented yet: createComment", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @GetMapping("/posts/{postId}/comments")
+    @PostMapping("/{commentId}")
+    public ResponseEntity<CommentResponse> replyToComment(
+            Authentication authentication,
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentRequest request
+    ) {
+        Long currentUserId = getCurrentUserId(authentication);
+        throw new CustomException("Not implemented yet: replyToComment", HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    @GetMapping
     public ResponseEntity<List<CommentResponse>> getCommentsByPost(
             @PathVariable Long postId
     ) {
         throw new CustomException("Not implemented yet: getCommentsByPost", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @PutMapping("/comments/{commentId}")
+    @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             Authentication authentication,
+            @PathVariable Long postId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentRequest request
     ) {
-        String currentUsername = authentication.getName();
+        Long currentUserId = getCurrentUserId(authentication);
         throw new CustomException("Not implemented yet: updateComment", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("{commentId}")
     public ResponseEntity<Void> deleteComment(
             Authentication authentication,
+            @PathVariable Long postId,
             @PathVariable Long commentId
     ) {
-        String currentUsername = authentication.getName();
+        Long currentUserId = getCurrentUserId(authentication);
         throw new CustomException("Not implemented yet: deleteComment", HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    private Long getCurrentUserId(Authentication authentication) {
+        try {
+            return Long.parseLong(authentication.getName());
+        } catch (NumberFormatException ex) {
+            throw new CustomException("Invalid token subject", HttpStatus.UNAUTHORIZED);
+        }
     }
 }
