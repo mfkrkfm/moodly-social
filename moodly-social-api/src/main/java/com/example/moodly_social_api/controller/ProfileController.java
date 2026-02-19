@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/{username}/profile")
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
