@@ -1,5 +1,6 @@
 package com.example.moodly_social_api.service;
 
+import com.example.moodly_social_api.dto.post.PictureResponse;
 import com.example.moodly_social_api.dto.profile.ProfileResponse;
 import com.example.moodly_social_api.dto.profile.UpdateProfileRequest;
 import com.example.moodly_social_api.entity.Profile;
@@ -58,11 +59,23 @@ public class ProfileService  {
 
     private ProfileResponse toProfileResponse(Profile profile) {
         ProfileResponse response = new ProfileResponse();
+        response.setUsername(profile.getUser().getUsername());
+        response.setAuthorPicture(toAvatar(profile));
         response.setFirstName(profile.getFirstName());
         response.setLastName(profile.getLastName());
         response.setBio(profile.getBio());
         response.setBirthDate(profile.getBirthDate());
         response.setMood(profile.getMood());
+        return response;
+    }
+
+    private PictureResponse toAvatar(Profile profile) {
+        if (profile == null || profile.getProfilePicture() == null || profile.getProfilePicture().getId() == null) {
+            return null;
+        }
+        PictureResponse response = new PictureResponse();
+        response.setId(profile.getProfilePicture().getId());
+        response.setUrl("/media/" + profile.getProfilePicture().getId());
         return response;
     }
 }
