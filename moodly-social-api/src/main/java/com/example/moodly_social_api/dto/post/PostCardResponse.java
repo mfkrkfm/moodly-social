@@ -1,29 +1,21 @@
 package com.example.moodly_social_api.dto.post;
-import com.example.moodly_social_api.dto.comment.CommentResponse;
-import com.example.moodly_social_api.dto.profile.ProfileResponse;
 import com.example.moodly_social_api.entity.Mood;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
-public class PostResponse {
+public class PostCardResponse {
 
     private Long id;
     private String authorUsername;
     private String authorAvatarUrl;
     private String content;
-    private boolean isEdited;
     private Mood mood;
     private LocalDateTime createdAt;
+    private PictureResponse pictures;
 
     private int likesCount;
     private int commentsCount;
-    private List<PictureResponse> pictures;
-
     private boolean likedByMe;
-
-    private List<CommentResponse> comments;
-    private List<ProfileResponse> likedBy;
 }
