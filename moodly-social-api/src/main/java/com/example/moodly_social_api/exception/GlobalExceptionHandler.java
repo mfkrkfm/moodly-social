@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.validation.FieldError;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -49,7 +50,6 @@ public class GlobalExceptionHandler {
 
         problemDetail.setTitle("Validation Failed");
         problemDetail.setDetail("Request validation failed");
-        problemDetail.setType(URI.create("https://example.com/validation-error"));
         problemDetail.setInstance(URI.create(request.getRequestURI()));
 
         Map<String, String> errors = new HashMap<>();
@@ -60,6 +60,18 @@ public class GlobalExceptionHandler {
         });
 
         problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ProblemDetail handleNoResourceFound(NoResourceFoundException ex,
+                                               HttpServletRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Resource Not Found");
+        problemDetail.setDetail("The requested resource was not found");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
 
         return problemDetail;
     }

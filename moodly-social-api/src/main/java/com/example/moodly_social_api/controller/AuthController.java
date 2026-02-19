@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +33,9 @@ public class AuthController {
 
     @DeleteMapping("/{username}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String delete(@PathVariable String username) {
+    public String delete(
+            @Parameter(description = "Username of the user to delete")
+            @PathVariable String username) {
         authService.delete(username);
         return username;
     }
