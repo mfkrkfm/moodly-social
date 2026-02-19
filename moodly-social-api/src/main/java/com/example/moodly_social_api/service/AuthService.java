@@ -112,14 +112,6 @@ public class AuthService {
         );
     }
 
-
-    public void delete(String username) {
-        if (!userRepository.existsByUsername(username)) {
-            throw new CustomException("User not found", HttpStatus.NOT_FOUND);
-        }
-        userRepository.deleteByUsername(username);
-    }
-
     private List<UserRole> getDefaultRoles() {
         return List.of(UserRole.ROLE_CLIENT);
     }

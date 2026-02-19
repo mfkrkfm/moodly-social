@@ -12,26 +12,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping
+@RequestMapping("/{username}/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
     private final ProfileService profileService;
 
-    @GetMapping("/profile")
+    @GetMapping
     public ResponseEntity<ProfileResponse> getMyProfileInfo(Authentication authentication) {
         Long currentUserId = getCurrentUserId(authentication);
         ProfileResponse profile = profileService.getProfileById(currentUserId);
         return ResponseEntity.ok(profile);
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<ProfileResponse> getProfileInfo(@PathVariable String username) {
-        ProfileResponse profile = profileService.getProfileByUsername(username);
-        return ResponseEntity.ok(profile);
-    }
-
-    @PutMapping("/profile/edit")
+    @PutMapping
     public ResponseEntity<ProfileResponse> updateMyProfileInfo(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request

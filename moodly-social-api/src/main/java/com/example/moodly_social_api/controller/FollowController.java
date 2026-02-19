@@ -8,10 +8,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/{username}/followers")
 public class FollowController {
 
-    @PostMapping("/{username}/followers")
+    @PostMapping
     public ResponseEntity<FollowResponse> follow(
             Authentication authentication,
             @PathVariable String username
@@ -24,7 +24,7 @@ public class FollowController {
         throw new CustomException("Not implemented yet: follow", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @DeleteMapping("/{username}/followers")
+    @DeleteMapping
     public ResponseEntity<FollowResponse> unfollow(
             Authentication authentication,
             @PathVariable String username

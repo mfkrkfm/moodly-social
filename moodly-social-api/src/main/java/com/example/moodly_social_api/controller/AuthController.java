@@ -29,11 +29,4 @@ public class AuthController {
         AuthResponse response = authService.signup(request);
         return ResponseEntity.ok(response);
     }
-
-    @DeleteMapping("/{username}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String delete(@PathVariable String username) {
-        authService.delete(username);
-        return username;
-    }
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/u")
 public class PublicProfileController {
 
     @GetMapping("/{username}")
