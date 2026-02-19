@@ -4,7 +4,9 @@ import com.example.moodly_social_api.dto.post.PostRequest;
 import com.example.moodly_social_api.dto.post.LikeResponse;
 import com.example.moodly_social_api.dto.post.PostResponse;
 import com.example.moodly_social_api.exception.CustomException;
+import com.example.moodly_social_api.service.PostService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,21 +18,27 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
+@RequiredArgsConstructor
 public class PostController {
 
-    @PostMapping
+    private final PostService postService;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostResponse> createPost(
             Authentication authentication,
-            @Valid @RequestBody PostRequest request
+            @RequestPart("post") @Valid PostRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        String currentUsername = authentication.getName();
-        throw new CustomException("Not implemented yet: createPost", HttpStatus.NOT_IMPLEMENTED);
+        Long currentUserId = getCurrentUserId(authentication);
+        PostResponse created = postService.createPost(currentUserId, request, files);
+        return ResponseEntity.ok(created);
     }
 
     @GetMapping
     public ResponseEntity<List<PostResponse>> getFeed(Authentication authentication) {
-        String currentUsername = authentication != null ? authentication.getName() : "anonymous";
-        throw new CustomException("Not implemented yet: getFeed", HttpStatus.NOT_IMPLEMENTED);
+        Long currentUserId = authentication != null ? getCurrentUserId(authentication) : null;
+        List<PostResponse> feed = postService.getFeed(currentUserId);
+        return ResponseEntity.ok(feed);
     }
 
     @GetMapping("/{postId}")
@@ -38,8 +46,9 @@ public class PostController {
             Authentication authentication,
             @PathVariable Long postId
     ) {
-        String currentUsername = authentication != null ? authentication.getName() : "anonymous";
-        throw new CustomException("Not implemented yet: getPostById", HttpStatus.NOT_IMPLEMENTED);
+        Long currentUserId = authentication != null ? getCurrentUserId(authentication) : null;
+        PostResponse post = postService.getPostById(postId, currentUserId);
+        return ResponseEntity.ok(post);
     }
 
     @PutMapping("/{postId}")
@@ -48,8 +57,9 @@ public class PostController {
             @PathVariable Long postId,
             @Valid @RequestBody PostRequest request
     ) {
-        String currentUsername = authentication.getName();
-        throw new CustomException("Not implemented yet: updatePost", HttpStatus.NOT_IMPLEMENTED);
+        Long currentUserId = getCurrentUserId(authentication);
+        PostResponse updated = postService.updatePost(currentUserId, postId, request);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{postId}")
@@ -57,8 +67,9 @@ public class PostController {
             Authentication authentication,
             @PathVariable Long postId
     ) {
-        String currentUsername = authentication.getName();
-        throw new CustomException("Not implemented yet: deletePost", HttpStatus.NOT_IMPLEMENTED);
+        Long currentUserId = getCurrentUserId(authentication);
+        postService.deletePost(currentUserId, postId);
+        return ResponseEntity.noContent().build();
     }
 
     // Likes
@@ -68,8 +79,9 @@ public class PostController {
             Authentication authentication,
             @PathVariable Long postId
     ) {
-        String currentUsername = authentication.getName();
-        throw new CustomException("Not implemented yet: likePost", HttpStatus.NOT_IMPLEMENTED);
+        Long currentUserId = getCurrentUserId(authentication);
+        LikeResponse response = postService.likePost(currentUserId, postId);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{postId}/likes")
@@ -77,32 +89,16 @@ public class PostController {
             Authentication authentication,
             @PathVariable Long postId
     ) {
-        String currentUsername = authentication.getName();
-        throw new CustomException("Not implemented yet: unlikePost", HttpStatus.NOT_IMPLEMENTED);
+        Long currentUserId = getCurrentUserId(authentication);
+        LikeResponse response = postService.unlikePost(currentUserId, postId);
+        return ResponseEntity.ok(response);
     }
 
-    // Pictures
-
-    @PostMapping(
-            value = "/{postId}/pictures",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<PostResponse> uploadPictures(
-            Authentication authentication,
-            @PathVariable Long postId,
-            @RequestParam("files") List<MultipartFile> files
-    ) {
-        String currentUsername = authentication.getName();
-        throw new CustomException("Not implemented yet: uploadPictures", HttpStatus.NOT_IMPLEMENTED);
-    }
-
-    @DeleteMapping("/{postId}/pictures/{pictureId}")
-    public ResponseEntity<PostResponse> deletePicture(
-            Authentication authentication,
-            @PathVariable Long postId,
-            @PathVariable Long pictureId
-    ) {
-        String currentUsername = authentication.getName();
-        throw new CustomException("Not implemented yet: deletePicture", HttpStatus.NOT_IMPLEMENTED);
+    private Long getCurrentUserId(Authentication authentication) {
+        try {
+            return Long.parseLong(authentication.getName());
+        } catch (NumberFormatException ex) {
+            throw new CustomException("Invalid token subject", HttpStatus.UNAUTHORIZED);
+        }
     }
 }

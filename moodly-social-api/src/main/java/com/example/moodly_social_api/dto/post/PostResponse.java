@@ -11,7 +11,7 @@ public class PostResponse {
 
     private Long id;
     private String content;
-    private boolean edited;
+    private boolean isEdited;
     private Mood mood;
     private LocalDateTime createdAt;
 
