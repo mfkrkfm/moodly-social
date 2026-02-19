@@ -1,6 +1,5 @@
 package com.example.moodly_social_api.service;
 
-import com.example.moodly_social_api.dto.post.LikeResponse;
 import com.example.moodly_social_api.dto.post.PictureResponse;
 import com.example.moodly_social_api.dto.post.PostRequest;
 import com.example.moodly_social_api.dto.post.PostResponse;
@@ -86,21 +85,21 @@ public class PostService {
     }
 
     @Transactional
-    public LikeResponse likePost(Long currentUserId, Long postId) {
+    public PostResponse likePost(Long currentUserId, Long postId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
 
         post.getLikedBy().add(currentProfile);
-        return toLikeResponse(post, true);
+        return toPostResponse(post, currentProfile.getId());
     }
 
     @Transactional
-    public LikeResponse unlikePost(Long currentUserId, Long postId) {
+    public PostResponse unlikePost(Long currentUserId, Long postId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
 
         post.getLikedBy().remove(currentProfile);
-        return toLikeResponse(post, false);
+        return toPostResponse(post, currentProfile.getId());
     }
 
     private Post getPost(Long postId) {
@@ -193,11 +192,4 @@ public class PostService {
                 .anyMatch(profile -> profile.getId().equals(currentProfileId));
     }
 
-    private LikeResponse toLikeResponse(Post post, boolean liked) {
-        LikeResponse response = new LikeResponse();
-        response.setPostId(post.getId());
-        response.setLiked(liked);
-        response.setLikesCount(post.getLikedBy().size());
-        return response;
-    }
 }

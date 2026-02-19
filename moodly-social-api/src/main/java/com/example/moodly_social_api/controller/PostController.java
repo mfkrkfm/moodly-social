@@ -1,7 +1,6 @@
 package com.example.moodly_social_api.controller;
 
 import com.example.moodly_social_api.dto.post.PostRequest;
-import com.example.moodly_social_api.dto.post.LikeResponse;
 import com.example.moodly_social_api.dto.post.PostResponse;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.service.PostService;
@@ -75,22 +74,22 @@ public class PostController {
     // Likes
 
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<LikeResponse> likePost(
+    public ResponseEntity<PostResponse> likePost(
             Authentication authentication,
             @PathVariable Long postId
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        LikeResponse response = postService.likePost(currentUserId, postId);
+        PostResponse response = postService.likePost(currentUserId, postId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<LikeResponse> unlikePost(
+    public ResponseEntity<PostResponse> unlikePost(
             Authentication authentication,
             @PathVariable Long postId
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        LikeResponse response = postService.unlikePost(currentUserId, postId);
+        PostResponse response = postService.unlikePost(currentUserId, postId);
         return ResponseEntity.ok(response);
     }
 
