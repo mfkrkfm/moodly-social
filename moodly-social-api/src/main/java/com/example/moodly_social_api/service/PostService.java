@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,7 @@ public class PostService {
     @Transactional
     public PostResponse createPost(Long currentUserId, PostRequest request, List<MultipartFile> files) {
         Profile currentProfile = getCurrentProfile(currentUserId);
+        validateCanPostToday(currentProfile.getId());
 
         Post post = new Post();
         post.setContent(request.getContent());
@@ -46,6 +48,23 @@ public class PostService {
 
         Post saved = postRepository.save(post);
         return toPostResponse(saved, currentProfile.getId());
+    }
+
+    private void validateCanPostToday(Long profileId) {
+        if (!canPostToday(profileId)) {
+            throw new CustomException("Daily post limit reached (max 3 posts per day)", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private boolean canPostToday(Long profileId) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime nextDayStart = startOfDay.plusDays(1);
+        long todayPosts = postRepository.countByAuthor_IdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+                profileId,
+                startOfDay,
+                nextDayStart
+        );
+        return todayPosts < 3;
     }
 
     @Transactional(readOnly = true)
