@@ -1,15 +1,13 @@
-package com.example.moodly_social_api.dto;
+package com.example.moodly_social_api.dto.user;
 
 import com.example.moodly_social_api.entity.UserRole;
 import lombok.Data;
-
-import java.util.Set;
+import java.util.List;
 
 @Data
-public class AdminUserResponse {
+public class UserResponse {
     private Long id;
     private String username;
     private String email;
-    private Set<UserRole> roles;
-
+    private List<UserRole> appUserRoles;
 }

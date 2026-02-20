@@ -1,7 +1,7 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.AdminUserResponse;
-import com.example.moodly_social_api.dto.UpdateUserRolesRequest;
+import com.example.moodly_social_api.dto.admin.AdminUserResponse;
+import com.example.moodly_social_api.dto.admin.UpdateUserRolesRequest;
 import com.example.moodly_social_api.exception.CustomException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

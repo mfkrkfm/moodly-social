@@ -1,8 +1,8 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.AuthResponse;
-import com.example.moodly_social_api.dto.LoginRequest;
-import com.example.moodly_social_api.dto.SignupRequest;
+import com.example.moodly_social_api.dto.auth.AuthResponse;
+import com.example.moodly_social_api.dto.auth.LoginRequest;
+import com.example.moodly_social_api.dto.auth.SignupRequest;
 import com.example.moodly_social_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

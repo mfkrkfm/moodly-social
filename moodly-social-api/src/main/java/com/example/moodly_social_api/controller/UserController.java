@@ -1,7 +1,7 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.UpdateUserRequest;
-import com.example.moodly_social_api.dto.UserResponse;
+import com.example.moodly_social_api.dto.user.UpdateUserRequest;
+import com.example.moodly_social_api.dto.user.UserResponse;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.service.UserService;
 import jakarta.validation.Valid;
@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/me/account")
+@RequestMapping("/account")
 @RequiredArgsConstructor
 public class UserController {
 

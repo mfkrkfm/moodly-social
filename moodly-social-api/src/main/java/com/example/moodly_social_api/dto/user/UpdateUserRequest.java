@@ -1,4 +1,4 @@
-package com.example.moodly_social_api.dto;
+package com.example.moodly_social_api.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

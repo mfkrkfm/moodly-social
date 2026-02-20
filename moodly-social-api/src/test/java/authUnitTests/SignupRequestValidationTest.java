@@ -1,6 +1,6 @@
 package authUnitTests;
 
-import com.example.moodly_social_api.dto.SignupRequest;
+import com.example.moodly_social_api.dto.auth.SignupRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

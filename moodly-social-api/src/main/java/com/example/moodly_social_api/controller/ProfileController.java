@@ -1,7 +1,7 @@
 package com.example.moodly_social_api.controller;
 
-import com.example.moodly_social_api.dto.UpdateProfileRequest;
-import com.example.moodly_social_api.dto.ProfileResponse;
+import com.example.moodly_social_api.dto.profile.UpdateProfileRequest;
+import com.example.moodly_social_api.dto.profile.ProfileResponse;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.service.ProfileService;
 import jakarta.validation.Valid;
@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/me/profile")
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
@@ -21,7 +21,7 @@ public class ProfileController {
     @GetMapping
     public ResponseEntity<ProfileResponse> getMyProfileInfo(Authentication authentication) {
         Long currentUserId = getCurrentUserId(authentication);
-        ProfileResponse profile = profileService.getProfile(currentUserId);
+        ProfileResponse profile = profileService.getProfileById(currentUserId);
         return ResponseEntity.ok(profile);
     }
 
