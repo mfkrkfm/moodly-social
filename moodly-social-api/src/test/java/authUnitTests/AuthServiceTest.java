@@ -5,6 +5,7 @@ import com.example.moodly_social_api.dto.auth.AuthResponse;
 import com.example.moodly_social_api.dto.auth.SignupRequest;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.entity.UserRole;
+import com.example.moodly_social_api.entity.Profile;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.repository.UserRepository;
 import com.example.moodly_social_api.security.JwtTokenProvider;
