@@ -35,7 +35,7 @@ class SignupRequestValidationTest {
                 .collect(Collectors.toSet());
 
         assertThat(propertyPaths).containsExactlyInAnyOrder("username", "email", "password");
-        // Optionally check messages:
+
         assertThat(violations).allMatch(v -> v.getMessage().contains("must not be blank"));
     }
 
@@ -68,5 +68,4 @@ class SignupRequestValidationTest {
         assertThat(violations).isEmpty();
     }
 
-    // Add tests for password pattern, username size, etc. as needed
 }

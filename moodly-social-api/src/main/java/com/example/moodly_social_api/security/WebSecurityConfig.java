@@ -19,6 +19,12 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -33,27 +39,29 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // Disable CSRF (stateless JWT, no cookies)
-        http.csrf(AbstractHttpConfigurer::disable);
+
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable);
 
         // Set session management to stateless
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Set permissions on endpoints
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/auth/signin").permitAll();
             auth.requestMatchers("/auth/signup").permitAll();
             auth.requestMatchers(HttpMethod.GET, "/{username}").permitAll();
 
+            auth.requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll();
             auth.requestMatchers("/admin/**").hasRole("ADMIN");
 
 
-            auth.anyRequest().authenticated();
+            //auth.anyRequest().authenticated();
+            auth.anyRequest().permitAll();
+
         });
 
         http.addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-        // Exception handling
         http.exceptionHandling(ex -> {
             ex.authenticationEntryPoint(unauthorizedEntryPoint());
             ex.accessDeniedHandler(accessDeniedHandler());
@@ -63,7 +71,7 @@ public class WebSecurityConfig {
         http.headers(headers -> {
             headers.frameOptions(frameOptions -> {
                 if (h2ConsoleEnabled) {
-                    frameOptions.sameOrigin(); // Allow H2 console
+                    frameOptions.sameOrigin();
                 } else {
                     frameOptions.deny();
                 }
@@ -106,4 +114,24 @@ public class WebSecurityConfig {
             response.getWriter().write("{\"error\":\"Access denied\"}");
         };
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "https://*.ngrok-free.app",
+                "http://localhost:*",
+                "https://localhost:*"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // apply to all endpoints
+        return source;
+    }
+
 }

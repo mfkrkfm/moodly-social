@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,5 +29,14 @@ public class AuthController {
     public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
         AuthResponse response = authService.signup(request);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{username}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String delete(
+            @Parameter(description = "Username of the user to delete")
+            @PathVariable String username) {
+        authService.delete(username);
+        return username;
     }
 }
