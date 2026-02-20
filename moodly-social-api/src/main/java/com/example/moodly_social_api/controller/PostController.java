@@ -68,7 +68,7 @@ public class PostController {
     ) {
         Long currentUserId = getCurrentUserId(authentication);
         postService.deletePost(currentUserId, postId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     // Likes
