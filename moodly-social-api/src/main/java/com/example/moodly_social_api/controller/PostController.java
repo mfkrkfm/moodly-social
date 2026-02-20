@@ -35,7 +35,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<PostResponse>> getFeed(Authentication authentication) {
-        Long currentUserId = authentication != null ? getCurrentUserId(authentication) : null;
+        Long currentUserId = getCurrentUserId(authentication);
         List<PostResponse> feed = postService.getFeed(currentUserId);
         return ResponseEntity.ok(feed);
     }
@@ -45,7 +45,7 @@ public class PostController {
             Authentication authentication,
             @PathVariable Long postId
     ) {
-        Long currentUserId = authentication != null ? getCurrentUserId(authentication) : null;
+        Long currentUserId = getCurrentUserId(authentication);
         PostResponse post = postService.getPostById(postId, currentUserId);
         return ResponseEntity.ok(post);
     }

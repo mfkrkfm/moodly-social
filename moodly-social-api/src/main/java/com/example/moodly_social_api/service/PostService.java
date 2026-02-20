@@ -1,8 +1,11 @@
 package com.example.moodly_social_api.service;
 
+import com.example.moodly_social_api.dto.comment.CommentResponse;
 import com.example.moodly_social_api.dto.post.PictureResponse;
 import com.example.moodly_social_api.dto.post.PostRequest;
 import com.example.moodly_social_api.dto.post.PostResponse;
+import com.example.moodly_social_api.dto.profile.ProfileResponse;
+import com.example.moodly_social_api.entity.Comment;
 import com.example.moodly_social_api.entity.Picture;
 import com.example.moodly_social_api.entity.Post;
 import com.example.moodly_social_api.entity.Profile;
@@ -47,18 +50,18 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostResponse> getFeed(Long currentUserId) {
-        Long currentProfileId = getCurrentProfileIdOrNull(currentUserId);
+        Profile currentProfile = getCurrentProfile(currentUserId);
         return postRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
-                .map(post -> toPostResponse(post, currentProfileId))
+                .map(post -> toPostResponse(post, currentProfile.getId()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public PostResponse getPostById(Long postId, Long currentUserId) {
-        Long currentProfileId = getCurrentProfileIdOrNull(currentUserId);
+        Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
-        return toPostResponse(post, currentProfileId);
+        return toPostResponse(post, currentProfile.getId());
     }
 
     @Transactional
@@ -118,13 +121,6 @@ public class PostService {
         return profile;
     }
 
-    private Long getCurrentProfileIdOrNull(Long currentUserId) {
-        if (currentUserId == null) {
-            return null;
-        }
-        return getCurrentProfile(currentUserId).getId();
-    }
-
     private void validateAuthor(Post post, Profile currentProfile) {
         if (post.getAuthor() == null || !post.getAuthor().getId().equals(currentProfile.getId())) {
             throw new CustomException("You are not allowed to modify this post", HttpStatus.FORBIDDEN);
@@ -134,6 +130,8 @@ public class PostService {
     private PostResponse toPostResponse(Post post, Long currentProfileId) {
         PostResponse response = new PostResponse();
         response.setId(post.getId());
+        response.setAuthorUsername(post.getAuthor().getUser().getUsername());
+        response.setAuthorPicture(toAvatar(post.getAuthor()));
         response.setContent(post.getContent());
         response.setEdited(post.isEdited());
         response.setMood(post.getMood());
@@ -142,6 +140,8 @@ public class PostService {
         response.setCommentsCount(post.getComments() != null ? post.getComments().size() : 0);
         response.setPictures(toPictureResponses(post.getPictures()));
         response.setLikedByMe(isLikedByCurrentUser(post, currentProfileId));
+        response.setComments(toCommentResponses(post.getComments()));
+        response.setLikedBy(toProfileResponses(post.getLikedBy()));
         return response;
     }
 
@@ -190,6 +190,55 @@ public class PostService {
         return post.getLikedBy()
                 .stream()
                 .anyMatch(profile -> profile.getId().equals(currentProfileId));
+    }
+
+    private List<CommentResponse> toCommentResponses(List<Comment> comments) {
+        if (comments == null) {
+            return Collections.emptyList();
+        }
+
+        return comments.stream()
+                .map(comment -> {
+                    CommentResponse response = new CommentResponse();
+                    response.setId(comment.getId());
+                    response.setContent(comment.getContent());
+                    response.setAuthorUsername(comment.getAuthor().getUser().getUsername());
+                    response.setAuthorPicture(toAvatar(comment.getAuthor()));
+                    response.setCreatedAt(comment.getCreatedAt());
+                    response.setEdited(comment.isEdited());
+                    return response;
+                })
+                .toList();
+    }
+
+    private List<ProfileResponse> toProfileResponses(Iterable<Profile> profiles) {
+        if (profiles == null) {
+            return Collections.emptyList();
+        }
+
+        List<ProfileResponse> responses = new ArrayList<>();
+        for (Profile profile : profiles) {
+            ProfileResponse response = new ProfileResponse();
+            response.setUsername(profile.getUser().getUsername());
+            response.setAuthorPicture(toAvatar(profile));
+            response.setFirstName(profile.getFirstName());
+            response.setLastName(profile.getLastName());
+            response.setBio(profile.getBio());
+            response.setBirthDate(profile.getBirthDate());
+            response.setMood(profile.getMood());
+            responses.add(response);
+        }
+        return responses;
+    }
+
+    private PictureResponse toAvatar(Profile profile) {
+        if (profile == null || profile.getProfilePicture() == null || profile.getProfilePicture().getId() == null) {
+            return null;
+        }
+        PictureResponse response = new PictureResponse();
+        response.setId(profile.getProfilePicture().getId());
+        response.setUrl("/media/" + profile.getProfilePicture().getId());
+        return response;
     }
 
 }

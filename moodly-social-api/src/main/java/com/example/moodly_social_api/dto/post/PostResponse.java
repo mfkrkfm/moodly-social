@@ -12,7 +12,7 @@ public class PostResponse {
 
     private Long id;
     private String authorUsername;
-    private String authorAvatarUrl;
+    private PictureResponse authorPicture;
     private String content;
     private boolean isEdited;
     private Mood mood;

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/profile")
@@ -32,6 +33,23 @@ public class ProfileController {
     ) {
         Long currentUserId = getCurrentUserId(authentication);
         ProfileResponse updated = profileService.updateProfile(currentUserId, request);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/picture")
+    public ResponseEntity<ProfileResponse> updateMyProfilePicture(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file
+    ) {
+        Long currentUserId = getCurrentUserId(authentication);
+        ProfileResponse updated = profileService.updateProfilePicture(currentUserId, file);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/picture")
+    public ResponseEntity<ProfileResponse> deleteMyProfilePicture(Authentication authentication) {
+        Long currentUserId = getCurrentUserId(authentication);
+        ProfileResponse updated = profileService.deleteProfilePicture(currentUserId);
         return ResponseEntity.ok(updated);
     }
 

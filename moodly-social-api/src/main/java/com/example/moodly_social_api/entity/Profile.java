@@ -38,6 +38,9 @@ public class Profile {
     @JoinColumn(name = "picture_id", unique = true)
     private Picture profilePicture;
 
+    @OneToOne(mappedBy = "profile", fetch = FetchType.LAZY)
+    private User user;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "user-post")
     private List<Post> posts = new ArrayList<>();
