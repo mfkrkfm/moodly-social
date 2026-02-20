@@ -6,11 +6,9 @@ import com.example.moodly_social_api.dto.auth.SignupRequest;
 import com.example.moodly_social_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,12 +29,4 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{username}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String delete(
-            @Parameter(description = "Username of the user to delete")
-            @PathVariable String username) {
-        authService.delete(username);
-        return username;
-    }
 }
