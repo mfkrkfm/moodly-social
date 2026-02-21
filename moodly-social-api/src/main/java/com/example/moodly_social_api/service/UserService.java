@@ -18,6 +18,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
     public UserResponse getUser(Long currentUserId) {
         User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));

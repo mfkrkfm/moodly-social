@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
     // Custom Business Exceptions
     @ExceptionHandler(CustomException.class)
     public ProblemDetail handleCustomException(CustomException ex, HttpServletRequest request) {
-
+        //TODO: add logging
+        ex.printStackTrace();
         ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getHttpStatus());
 
         problemDetail.setTitle(ex.getHttpStatus().getReasonPhrase());
@@ -33,7 +34,8 @@ public class GlobalExceptionHandler {
     // Fallback Exception
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleAllUncaught(Exception ex, HttpServletRequest request) {
-
+        //TODO: add logging
+        ex.printStackTrace();
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 
         problemDetail.setTitle("Internal Server Error");
@@ -46,7 +48,8 @@ public class GlobalExceptionHandler {
     // Validation fails
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
-
+        //TODO: add logging
+        ex.printStackTrace();
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 
         problemDetail.setTitle("Validation Failed");
@@ -68,7 +71,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ProblemDetail handleNoResourceFound(NoResourceFoundException ex,
                                                HttpServletRequest request) {
-
+        //TODO: add logging
+        ex.printStackTrace();
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problemDetail.setTitle("Resource Not Found");
         problemDetail.setDetail("The requested resource was not found");
@@ -80,6 +84,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
                                                       HttpServletRequest request) {
+        //TODO: add logging
+        ex.printStackTrace();
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Bad Request");
         problemDetail.setDetail("Malformed request body");
