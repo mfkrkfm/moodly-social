@@ -64,23 +64,6 @@ public class PostService {
         return todayPosts < 3;
     }
 
-    private void validateCanPostToday(Long profileId) {
-        if (!canPostToday(profileId)) {
-            throw new CustomException("Daily post limit reached (max 3 posts per day)", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    private boolean canPostToday(Long profileId) {
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime nextDayStart = startOfDay.plusDays(1);
-        long todayPosts = postRepository.countByAuthor_IdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
-                profileId,
-                startOfDay,
-                nextDayStart
-        );
-        return todayPosts < 3;
-    }
-
     @Transactional(readOnly = true)
     public List<PostResponse> getFeed(Long currentUserId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
