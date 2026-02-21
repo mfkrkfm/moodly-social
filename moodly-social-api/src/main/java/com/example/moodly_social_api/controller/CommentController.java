@@ -2,7 +2,9 @@ package com.example.moodly_social_api.controller;
 
 import com.example.moodly_social_api.dto.comment.*;
 import com.example.moodly_social_api.exception.CustomException;
+import com.example.moodly_social_api.service.CommentService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,8 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/posts/{postId}/comments/")
+@RequestMapping("/posts/{postId}/comments")
+@RequiredArgsConstructor
 public class CommentController {
+
+    private final CommentService commentService;
 
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
@@ -21,7 +26,8 @@ public class CommentController {
             @Valid @RequestBody CommentRequest request
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        throw new CustomException("Not implemented yet: createComment", HttpStatus.NOT_IMPLEMENTED);
+        CommentResponse created = commentService.postComment(currentUserId, postId, request);
+        return ResponseEntity.ok(created);
     }
 
     @PostMapping("/{commentId}")
@@ -32,14 +38,16 @@ public class CommentController {
             @Valid @RequestBody CommentRequest request
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        throw new CustomException("Not implemented yet: replyToComment", HttpStatus.NOT_IMPLEMENTED);
+        CommentResponse reply = commentService.replyToComment(currentUserId, postId, commentId, request);
+        return ResponseEntity.ok(reply);
     }
 
     @GetMapping
     public ResponseEntity<List<CommentResponse>> getCommentsByPost(
             @PathVariable Long postId
     ) {
-        throw new CustomException("Not implemented yet: getCommentsByPost", HttpStatus.NOT_IMPLEMENTED);
+        List<CommentResponse> comments = commentService.getCommentsByPost(postId);
+        return ResponseEntity.ok(comments);
     }
 
     @PutMapping("/{commentId}")
@@ -50,17 +58,19 @@ public class CommentController {
             @Valid @RequestBody CommentRequest request
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        throw new CustomException("Not implemented yet: updateComment", HttpStatus.NOT_IMPLEMENTED);
+        CommentResponse updated = commentService.updateComment(currentUserId, postId, commentId, request);
+        return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("{commentId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             Authentication authentication,
             @PathVariable Long postId,
             @PathVariable Long commentId
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        throw new CustomException("Not implemented yet: deleteComment", HttpStatus.NOT_IMPLEMENTED);
+        commentService.deleteComment(currentUserId, postId, commentId);
+        return ResponseEntity.noContent().build();
     }
 
     private Long getCurrentUserId(Authentication authentication) {
