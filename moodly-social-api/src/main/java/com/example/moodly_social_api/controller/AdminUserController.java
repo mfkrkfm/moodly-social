@@ -2,8 +2,9 @@ package com.example.moodly_social_api.controller;
 
 import com.example.moodly_social_api.dto.admin.AdminUserResponse;
 import com.example.moodly_social_api.dto.admin.UpdateUserRolesRequest;
-import com.example.moodly_social_api.exception.CustomException;
+import com.example.moodly_social_api.service.AdminUserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,16 +15,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class AdminUserController {
+
+    private final AdminUserService adminUserService;
 
     @GetMapping
     public ResponseEntity<List<AdminUserResponse>> getAllUsers() {
-        throw new CustomException("Not implemented yet: getAllUsers", HttpStatus.NOT_IMPLEMENTED);
+        return ResponseEntity.ok(adminUserService.getAllUsers());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AdminUserResponse> getUserById(@PathVariable Long id) {
-        throw new CustomException("Not implemented yet: getUserById", HttpStatus.NOT_IMPLEMENTED);
+        return ResponseEntity.ok(adminUserService.getUserById(id));
     }
 
     @PutMapping("/{id}/roles")
@@ -31,11 +35,12 @@ public class AdminUserController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRolesRequest request
     ) {
-        throw new CustomException("Not implemented yet: updateUserRoles", HttpStatus.NOT_IMPLEMENTED);
+        return ResponseEntity.ok(adminUserService.updateUserRoles(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        throw new CustomException("Not implemented yet: deleteUser", HttpStatus.NOT_IMPLEMENTED);
+        adminUserService.deleteUser(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

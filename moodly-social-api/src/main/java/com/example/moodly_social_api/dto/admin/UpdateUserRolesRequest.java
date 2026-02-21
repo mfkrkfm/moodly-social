@@ -4,11 +4,11 @@ import com.example.moodly_social_api.entity.UserRole;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 public class UpdateUserRolesRequest {
 
     @NotEmpty
-    private Set<UserRole> roles;
+    private List<UserRole> roles;
 }

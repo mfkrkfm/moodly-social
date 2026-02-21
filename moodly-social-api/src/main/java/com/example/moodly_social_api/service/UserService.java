@@ -58,6 +58,7 @@ public class UserService {
         response.setId(user.getId());
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
+        response.setProfileId(user.getProfile() != null ? user.getProfile().getId() : null);
         response.setAppUserRoles(user.getAppUserRoles());
         return response;
     }
