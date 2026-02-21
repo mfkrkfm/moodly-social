@@ -1,6 +1,5 @@
 package com.example.moodly_social_api.service;
 
-import com.example.moodly_social_api.dto.post.PictureResponse;
 import com.example.moodly_social_api.dto.profile.ProfileResponse;
 import com.example.moodly_social_api.dto.profile.UpdateProfileRequest;
 import com.example.moodly_social_api.entity.Picture;
@@ -8,6 +7,7 @@ import com.example.moodly_social_api.entity.Profile;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.repository.UserRepository;
+import com.example.moodly_social_api.service.mapper.ProfileMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,7 @@ import java.io.IOException;
 public class ProfileService  {
 
     private final UserRepository userRepository;
+    private final ProfileMapper profileMapper;
 
     @Transactional(readOnly = true)
     public ProfileResponse getProfileById(Long currentUserId) {
@@ -30,7 +31,7 @@ public class ProfileService  {
         if (profile == null) {
             throw new CustomException("Profile not found", HttpStatus.NOT_FOUND);
         }
-        return toProfileResponse(profile);
+        return profileMapper.toProfileResponse(profile);
     }
 
     @Transactional(readOnly = true)
@@ -41,7 +42,7 @@ public class ProfileService  {
         if (profile == null) {
             throw new CustomException("Profile not found", HttpStatus.NOT_FOUND);
         }
-        return toProfileResponse(profile);
+        return profileMapper.toProfileResponse(profile);
     }
 
     @Transactional
@@ -53,7 +54,7 @@ public class ProfileService  {
         profile.setBirthDate(request.getBirthDate());
         profile.setMood(request.getMood());
 
-        return toProfileResponse(profile);
+        return profileMapper.toProfileResponse(profile);
     }
 
     @Transactional
@@ -76,7 +77,7 @@ public class ProfileService  {
         }
 
         userRepository.flush();
-        return toProfileResponse(profile);
+        return profileMapper.toProfileResponse(profile);
     }
 
     @Transactional
@@ -84,7 +85,7 @@ public class ProfileService  {
         Profile profile = getCurrentProfile(currentUserId);
         profile.setProfilePicture(null);
         userRepository.flush();
-        return toProfileResponse(profile);
+        return profileMapper.toProfileResponse(profile);
     }
 
     private Profile getCurrentProfile(Long currentUserId) {
@@ -97,25 +98,4 @@ public class ProfileService  {
         return profile;
     }
 
-    private ProfileResponse toProfileResponse(Profile profile) {
-        ProfileResponse response = new ProfileResponse();
-        response.setUsername(profile.getUser() != null ? profile.getUser().getUsername() : null);
-        response.setAuthorPicture(toAvatar(profile));
-        response.setFirstName(profile.getFirstName());
-        response.setLastName(profile.getLastName());
-        response.setBio(profile.getBio());
-        response.setBirthDate(profile.getBirthDate());
-        response.setMood(profile.getMood());
-        return response;
-    }
-
-    private PictureResponse toAvatar(Profile profile) {
-        if (profile == null || profile.getProfilePicture() == null || profile.getProfilePicture().getId() == null) {
-            return null;
-        }
-        PictureResponse response = new PictureResponse();
-        response.setId(profile.getProfilePicture().getId());
-        response.setUrl("/media/" + profile.getProfilePicture().getId());
-        return response;
-    }
 }
