@@ -59,7 +59,11 @@ public class Profile {
     @JoinTable(
             name = "profile_followers",
             joinColumns = @JoinColumn(name = "follower_id"),
-            inverseJoinColumns = @JoinColumn(name = "followed_id")
+            inverseJoinColumns = @JoinColumn(name = "followed_id"),
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uk_profile_followers_follower_followed",
+                    columnNames = {"follower_id", "followed_id"}
+            )
     )
     private Set<Profile> following = new HashSet<>();
 

@@ -50,7 +50,11 @@ public class Post {
     @JoinTable(
             name = "post_likes",
             joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "profile_id")
+            inverseJoinColumns = @JoinColumn(name = "profile_id"),
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uk_post_likes_post_profile",
+                    columnNames = {"post_id", "profile_id"}
+            )
     )
     private Set<Profile> likedBy = new HashSet<>();
 }
