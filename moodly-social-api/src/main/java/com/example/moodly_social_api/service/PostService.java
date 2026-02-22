@@ -1,7 +1,9 @@
 package com.example.moodly_social_api.service;
 
 import com.example.moodly_social_api.dto.post.PostRequest;
+import com.example.moodly_social_api.dto.post.LikeResponse;
 import com.example.moodly_social_api.dto.post.PostResponse;
+import com.example.moodly_social_api.dto.profile.ProfileResponse;
 import com.example.moodly_social_api.entity.Picture;
 import com.example.moodly_social_api.entity.Post;
 import com.example.moodly_social_api.entity.Profile;
@@ -10,6 +12,7 @@ import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.repository.PostRepository;
 import com.example.moodly_social_api.repository.UserRepository;
 import com.example.moodly_social_api.service.mapper.PostMapper;
+import com.example.moodly_social_api.service.mapper.ProfileMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostMapper postMapper;
+    private final ProfileMapper profileMapper;
 
     @Transactional
     public PostResponse createPost(Long currentUserId, PostRequest request, List<MultipartFile> files) {
@@ -80,6 +84,12 @@ public class PostService {
         return postMapper.toPostResponse(post, currentProfile.getId());
     }
 
+    @Transactional(readOnly = true)
+    public List<ProfileResponse> getPostLikes(Long postId) {
+        Post post = getPost(postId);
+        return profileMapper.toProfileResponses(post.getLikedBy());
+    }
+
     @Transactional
     public PostResponse updatePost(Long currentUserId, Long postId, PostRequest request) {
         Profile currentProfile = getCurrentProfile(currentUserId);
@@ -104,21 +114,21 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse likePost(Long currentUserId, Long postId) {
+    public LikeResponse likePost(Long currentUserId, Long postId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
 
         post.getLikedBy().add(currentProfile);
-        return postMapper.toPostResponse(post, currentProfile.getId());
+        return toLikeResponse(post, true);
     }
 
     @Transactional
-    public PostResponse unlikePost(Long currentUserId, Long postId) {
+    public LikeResponse unlikePost(Long currentUserId, Long postId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
 
         post.getLikedBy().remove(currentProfile);
-        return postMapper.toPostResponse(post, currentProfile.getId());
+        return toLikeResponse(post, false);
     }
 
     private Post getPost(Long postId) {
@@ -163,6 +173,14 @@ public class PostService {
             pictures.add(picture);
         }
         return pictures;
+    }
+
+    private LikeResponse toLikeResponse(Post post, boolean liked) {
+        LikeResponse response = new LikeResponse();
+        response.setPostId(post.getId());
+        response.setLiked(liked);
+        response.setLikesCount(post.getLikedBy() != null ? post.getLikedBy().size() : 0);
+        return response;
     }
 
 }

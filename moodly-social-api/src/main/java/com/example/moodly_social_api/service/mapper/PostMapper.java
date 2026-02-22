@@ -27,7 +27,6 @@ public class PostMapper {
         response.setPictures(pictureMapper.toPictureResponses(post.getPictures()));
         response.setLikedByMe(isLikedByCurrentUser(post, currentProfileId));
         response.setComments(commentMapper.toCommentTree(post.getComments()));
-        response.setLikedBy(profileMapper.toProfileResponses(post.getLikedBy()));
         return response;
     }
 

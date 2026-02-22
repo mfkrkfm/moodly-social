@@ -1,6 +1,5 @@
 package com.example.moodly_social_api.dto.post;
 import com.example.moodly_social_api.dto.comment.CommentResponse;
-import com.example.moodly_social_api.dto.profile.ProfileResponse;
 import com.example.moodly_social_api.entity.Mood;
 import lombok.Data;
 
@@ -25,5 +24,4 @@ public class PostResponse {
     private boolean likedByMe;
 
     private List<CommentResponse> comments;
-    private List<ProfileResponse> likedBy;
 }

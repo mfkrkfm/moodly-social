@@ -49,7 +49,9 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/auth/signin").permitAll();
             auth.requestMatchers("/auth/signup").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/media/**").permitAll();
             auth.requestMatchers(HttpMethod.GET, "/{username}").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/{username}/**").permitAll();
 
             auth.requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll();
             auth.requestMatchers("/admin/**").hasRole("ADMIN");

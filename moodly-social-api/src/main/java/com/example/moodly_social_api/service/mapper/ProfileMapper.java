@@ -33,6 +33,8 @@ public class ProfileMapper {
         response.setBio(profile.getBio());
         response.setBirthDate(profile.getBirthDate());
         response.setMood(profile.getMood());
+        response.setFollowersCount(profile.getFollowers() != null ? profile.getFollowers().size() : 0);
+        response.setFollowingCount(profile.getFollowing() != null ? profile.getFollowing().size() : 0);
         return response;
     }
 

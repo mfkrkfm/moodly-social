@@ -1,7 +1,9 @@
 package com.example.moodly_social_api.controller;
 
 import com.example.moodly_social_api.dto.post.PostRequest;
+import com.example.moodly_social_api.dto.post.LikeResponse;
 import com.example.moodly_social_api.dto.post.PostResponse;
+import com.example.moodly_social_api.dto.profile.ProfileResponse;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.service.PostService;
 import jakarta.validation.Valid;
@@ -86,27 +88,37 @@ public class PostController {
     // Likes
 
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<PostResponse> likePost(
+    public ResponseEntity<LikeResponse> likePost(
             Authentication authentication,
             @PathVariable Long postId
     ) {
         Long currentUserId = getCurrentUserId(authentication);
         log.info("POST /posts/{}/likes - like post: userId={}", postId, currentUserId);
-        PostResponse response = postService.likePost(currentUserId, postId);
+        LikeResponse response = postService.likePost(currentUserId, postId);
         log.info("POST /posts/{}/likes - post liked", postId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<PostResponse> unlikePost(
+    public ResponseEntity<LikeResponse> unlikePost(
             Authentication authentication,
             @PathVariable Long postId
     ) {
         Long currentUserId = getCurrentUserId(authentication);
         log.info("DELETE /posts/{}/likes - unlike post: userId={}", postId, currentUserId);
-        PostResponse response = postService.unlikePost(currentUserId, postId);
+        LikeResponse response = postService.unlikePost(currentUserId, postId);
         log.info("DELETE /posts/{}/likes - post unliked", postId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{postId}/likes")
+    public ResponseEntity<List<ProfileResponse>> getPostLikes(
+            @PathVariable Long postId
+    ) {
+        log.info("GET /posts/{}/likes - fetch likes list", postId);
+        List<ProfileResponse> likes = postService.getPostLikes(postId);
+        log.info("GET /posts/{}/likes - returned {} likes", postId, likes.size());
+        return ResponseEntity.ok(likes);
     }
 
     private Long getCurrentUserId(Authentication authentication) {
