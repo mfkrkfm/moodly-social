@@ -16,4 +16,6 @@ public class ProfileResponse {
     private String bio;
     private LocalDate birthDate;
     private Mood mood;
+    private int followersCount;
+    private int followingCount;
 }
