@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/admin/users")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequiredArgsConstructor
-@Slf4j
+
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
