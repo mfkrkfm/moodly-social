@@ -54,8 +54,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      dependency-graph: write
+      contents: write
 
     steps:
       - name: Checkout
