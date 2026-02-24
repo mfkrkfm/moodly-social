@@ -59,7 +59,10 @@ public class AuthService {
                     user.getId(),
                     user.getUsername(),
                     user.getEmail(),
-                    user.getAppUserRoles().getFirst().name(),
+                    user.getAppUserRoles()
+                            .stream()
+                            .map(Enum::name)
+                            .toList(),
                     user.getProfile().getId()
             );
 
@@ -104,10 +107,10 @@ public class AuthService {
                 savedUser.getId(),
                 savedUser.getUsername(),
                 savedUser.getEmail(),
-                String.valueOf(savedUser.getAppUserRoles()
+                savedUser.getAppUserRoles()
                         .stream()
                         .map(Enum::name)
-                        .collect(Collectors.toList())),
+                        .toList(),
                 savedUser.getProfile().getId()
         );
     }
