@@ -12,10 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,11 +55,11 @@ public class AdminUserService {
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
     }
 
-    private List<UserRole> normalizeRoles(List<UserRole> roles) {
+    private static List<UserRole> normalizeRoles(List<UserRole> roles) {
         if (roles == null || roles.isEmpty()) {
             throw new CustomException("Roles must not be empty", HttpStatus.BAD_REQUEST);
         }
-        if (roles.stream().anyMatch(role -> role == null)) {
+        if (roles.stream().anyMatch(Objects::isNull)) {
             throw new CustomException("Roles must not contain null values", HttpStatus.BAD_REQUEST);
         }
 
