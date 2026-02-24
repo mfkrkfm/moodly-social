@@ -91,7 +91,7 @@ class AdminUserControllerTest {
         user.setId(userId);
         user.setUsername("testuser");
         user.setEmail("test@example.com");
-        user.setRoles(Arrays.asList(UserRole.ROLE_CLIENT));
+        user.setRoles(List.of(UserRole.ROLE_CLIENT));
 
         when(adminUserService.getUserById(userId)).thenReturn(user);
 
@@ -157,7 +157,7 @@ class AdminUserControllerTest {
     void updateUserRoles_withNonExistingUser_shouldReturnNotFound() throws Exception {
         Long userId = 999L;
         UpdateUserRolesRequest request = new UpdateUserRolesRequest();
-        request.setRoles(Arrays.asList(UserRole.ROLE_CLIENT));
+        request.setRoles(List.of(UserRole.ROLE_CLIENT));
 
         when(adminUserService.updateUserRoles(eq(userId), any(UpdateUserRolesRequest.class)))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
