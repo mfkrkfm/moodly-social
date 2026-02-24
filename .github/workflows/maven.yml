@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        workingdirectory: moodly-social-api
+        working-directory: moodly-social-api
 
     steps:
       - uses: actions/checkout@v4
