@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
+    <springProperty scope="context" name="LOG_PATH" source="logging.file.path" defaultValue="logs"/>
 
     <!-- Console appender (used in all environments) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -11,10 +12,10 @@
     <!-- File appender only for dev -->
     <springProfile name="dev">
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>/app/logs/moodly-social-api.log</file>
+            <file>${LOG_PATH}/moodly-social-api.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                 <!-- Daily rolling, index if > 10MB -->
-                <fileNamePattern>/app/logs/moodly-social-api-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>${LOG_PATH}/moodly-social-api-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <maxFileSize>10MB</maxFileSize>
                 <maxHistory>30</maxHistory>
                 <totalSizeCap>1GB</totalSizeCap>
