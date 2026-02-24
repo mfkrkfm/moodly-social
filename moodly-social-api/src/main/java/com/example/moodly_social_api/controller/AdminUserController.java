@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/admin/users")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -24,17 +25,17 @@ public class AdminUserController {
 
     @GetMapping
     public ResponseEntity<List<AdminUserResponse>> getAllUsers() {
-        log.info("Admin request: Fetching all users");
+        log.info("GET /admin/users - fetch all users");
         List<AdminUserResponse> users = adminUserService.getAllUsers();
-        log.debug("Fetched {} users", users.size());
+        log.info("GET /admin/users - found {} users", users.size());
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AdminUserResponse> getUserById(@PathVariable Long id) {
-        log.info("Admin request: Fetching user with id={}", id);
+        log.info("GET /admin/users/{} - fetch user", id);
         AdminUserResponse user = adminUserService.getUserById(id);
-        log.debug("Fetched user: {}", user);
+        log.info("GET /admin/users/{} - user found: username={}", id, user.getUsername());
         return ResponseEntity.ok(user);
     }
 
@@ -43,20 +44,17 @@ public class AdminUserController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRolesRequest request
     ) {
-        log.info("Admin request: Updating roles for user id={}", id);
-        log.debug("New roles payload: {}", request);
-
-        AdminUserResponse updatedUser = adminUserService.updateUserRoles(id, request);
-
-        log.info("Successfully updated roles for user id={}", id);
-        return ResponseEntity.ok(updatedUser);
+        log.info("PUT /admin/users/{}/roles - update roles: roles={}", id, request.getRoles());
+        AdminUserResponse updated = adminUserService.updateUserRoles(id, request);
+        log.info("PUT /admin/users/{}/roles - roles updated: username={}", id, updated.getUsername());
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        log.warn("Admin request: Deleting user with id={}", id);
+        log.info("DELETE /admin/users/{} - delete user", id);
         adminUserService.deleteUser(id);
-        log.info("User with id={} deleted successfully", id);
+        log.info("DELETE /admin/users/{} - user deleted", id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
