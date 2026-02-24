@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -56,7 +57,7 @@ class AuthControllerTest {
                 1L,
                 "testuser",
                 "test@example.com",
-                "ROLE_USER",
+                List.of("ROLE_USER"),
                 1L
         );
 
@@ -71,7 +72,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.username").value("testuser"))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
-                .andExpect(jsonPath("$.role").value("ROLE_USER"));
+                .andExpect(jsonPath("$.roles[0]").value("ROLE_USER"));
 
         verify(authService, times(1)).signin(any(LoginRequest.class));
     }
@@ -146,7 +147,7 @@ class AuthControllerTest {
                 2L,
                 "newuser",
                 "newuser@example.com",
-                "ROLE_USER",
+                List.of("ROLE_USER"),
                 2L
         );
 
