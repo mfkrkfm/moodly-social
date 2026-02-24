@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.access.AccessDeniedException;
 
+import javax.naming.AuthenticationException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,6 +91,35 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Bad Request");
         problemDetail.setDetail("Malformed request body");
         problemDetail.setInstance(URI.create(request.getRequestURI()));
+        return problemDetail;
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request
+    ) {
+        logException(ex);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Access Denied");
+        problemDetail.setDetail("You do not have permission to access this resource");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request
+    ) {
+        logException(ex);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problemDetail.setTitle("Unauthorized");
+        problemDetail.setDetail("Authentication is required to access this resource");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
         return problemDetail;
     }
 }
