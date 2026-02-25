@@ -1,4 +1,4 @@
-package authUnitTests;
+package com.example.moodly_social_api.service;
 
 import com.example.moodly_social_api.dto.auth.LoginRequest;
 import com.example.moodly_social_api.dto.auth.AuthResponse;
@@ -9,7 +9,6 @@ import com.example.moodly_social_api.entity.Profile;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.repository.UserRepository;
 import com.example.moodly_social_api.security.JwtTokenProvider;
-import com.example.moodly_social_api.service.AuthService;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
