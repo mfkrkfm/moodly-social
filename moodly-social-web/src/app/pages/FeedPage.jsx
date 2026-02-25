@@ -110,14 +110,14 @@ export function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5F7F5] via-white to-emerald-50">
-      <header className="sticky top-0 z-10 border-b border-emerald-100/60 bg-white/80 backdrop-blur">
+    <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg">
+      <header className="sticky top-0 z-10 border-b border-surface-border-soft bg-surface-card-80 backdrop-blur">
         <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-3">
             <Link
               to="/profile"
-              className="text-sm text-[#3C7680] hover:underline font-medium"
+              className="text-sm text-brand-link hover:underline font-medium"
             >
               Profile
             </Link>
@@ -127,7 +127,7 @@ export function FeedPage() {
                 clearAuth();
                 window.location.href = "/login";
               }}
-              className="border-emerald-200"
+              className="border-surface-border-strong"
             >
               Sign out
             </Button>
@@ -137,7 +137,7 @@ export function FeedPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-8 space-y-6">
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 whitespace-pre-line">
+          <div className="rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
             {error}
           </div>
         )}

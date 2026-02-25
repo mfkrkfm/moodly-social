@@ -89,7 +89,7 @@ export function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F5F7F5] via-white to-emerald-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg p-6">
         <div className="mx-auto max-w-2xl">
           <p className="text-sm text-muted-foreground">Loading…</p>
         </div>
@@ -98,14 +98,14 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5F7F5] via-white to-emerald-50">
-      <header className="sticky top-0 z-10 border-b border-emerald-100/60 bg-white/80 backdrop-blur">
+    <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg">
+      <header className="sticky top-0 z-10 border-b border-surface-border-soft bg-surface-card-80 backdrop-blur">
         <div className="mx-auto max-w-2xl px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-[#1F453F]">Your profile</h1>
+            <h1 className="text-lg font-semibold text-brand-title">Your profile</h1>
             <p className="text-xs text-muted-foreground">@{session?.username || profile?.username}</p>
           </div>
-          <Link to="/feed" className="text-sm text-[#3C7680] hover:underline font-medium">
+          <Link to="/feed" className="text-sm text-brand-link hover:underline font-medium">
             Back to feed
           </Link>
         </div>
@@ -113,31 +113,31 @@ export function ProfilePage() {
 
       <main className="mx-auto max-w-2xl px-4 py-8 space-y-6">
         {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 whitespace-pre-line">
+          <div className="rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
             {error}
           </div>
         )}
 
-        <Card className="border-emerald-100/60 shadow-sm">
+        <Card className="border-surface-border-soft shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden bg-emerald-100 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-accent flex items-center justify-center">
                 {profile?.authorPicture?.url ? (
                   <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-[#1F453F] font-semibold text-xl">{(profile?.username || "?")[0]?.toUpperCase()}</span>
+                  <span className="text-brand-title font-semibold text-xl">{(profile?.username || "?")[0]?.toUpperCase()}</span>
                 )}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-[#1F453F]">{profile?.username}</p>
+                <p className="text-sm font-medium text-brand-title">{profile?.username}</p>
                 <p className="text-xs text-muted-foreground">Followers {profile?.followersCount ?? 0} • Following {profile?.followingCount ?? 0}</p>
               </div>
               <div className="flex items-center gap-2">
-                <label className="inline-flex cursor-pointer items-center rounded-lg border border-emerald-100 bg-white/80 px-3 py-2 text-xs hover:bg-emerald-50">
+                <label className="inline-flex cursor-pointer items-center rounded-lg border border-surface-border bg-surface-card-80 px-3 py-2 text-xs hover:bg-accent">
                   <input type="file" accept="image/*" className="hidden" onChange={onUpload} />
                   Upload
                 </label>
-                <Button variant="outline" onClick={onDeletePicture} className="border-emerald-200">
+                <Button variant="outline" onClick={onDeletePicture} className="border-surface-border-strong">
                   Remove
                 </Button>
               </div>
@@ -145,7 +145,7 @@ export function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-100/60 shadow-sm">
+        <Card className="border-surface-border-soft shadow-sm">
           <CardContent className="p-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -154,7 +154,7 @@ export function ProfilePage() {
                   value={form.firstName}
                   maxLength={100}
                   onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
-                  className="mt-1 bg-white/80 border-emerald-100"
+                  className="mt-1 bg-surface-card-80 border-surface-border"
                 />
               </div>
               <div>
@@ -163,7 +163,7 @@ export function ProfilePage() {
                   value={form.lastName}
                   maxLength={100}
                   onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
-                  className="mt-1 bg-white/80 border-emerald-100"
+                  className="mt-1 bg-surface-card-80 border-surface-border"
                 />
               </div>
             </div>
@@ -174,7 +174,7 @@ export function ProfilePage() {
                 value={form.bio}
                 maxLength={500}
                 onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-                className="mt-1 w-full min-h-[100px] rounded-md border border-emerald-100 bg-white/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/50"
+                className="mt-1 w-full min-h-[100px] rounded-md border border-surface-border bg-surface-card-80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-accent"
                 placeholder="Tell people what you’re about…"
               />
               <p className="mt-1 text-xs text-muted-foreground">{form.bio.length}/500</p>
@@ -187,14 +187,14 @@ export function ProfilePage() {
                   type="date"
                   value={form.birthDate || ""}
                   onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
-                  className="mt-1 bg-white/80 border-emerald-100"
+                  className="mt-1 bg-surface-card-80 border-surface-border"
                 />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground">Mood</label>
                 <div className="mt-1">
                   <Select value={form.mood} onValueChange={(v) => setForm((f) => ({ ...f, mood: v }))}>
-                    <SelectTrigger className="bg-white/80 border-emerald-100">
+                    <SelectTrigger className="bg-surface-card-80 border-surface-border">
                       <SelectValue placeholder="Select mood" />
                     </SelectTrigger>
                     <SelectContent>
@@ -212,7 +212,7 @@ export function ProfilePage() {
             <Button
               onClick={onSave}
               disabled={saving}
-              className="w-full bg-gradient-to-r from-[#1F453F] to-[#3C7680] hover:from-[#16352F] hover:to-[#2F6068] text-white"
+              className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:from-brand-primary-hover hover:to-brand-secondary-hover text-primary-foreground"
             >
               {saving ? "Saving…" : "Save changes"}
             </Button>

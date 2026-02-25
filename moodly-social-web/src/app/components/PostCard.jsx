@@ -52,19 +52,19 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
   };
 
   return (
-    <Card className={`shadow-sm transition-shadow hover:shadow-md border-emerald-100/40 ${getMoodBackgroundColor(post.mood)}`}>
+    <Card className={`shadow-sm transition-shadow hover:shadow-md border-surface-border-faint ${getMoodBackgroundColor(post.mood)}`}>
       <CardContent className="p-6 space-y-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-[#1F453F] flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-avatar-grad-start to-avatar-grad-end flex items-center justify-center flex-shrink-0 overflow-hidden">
               {post.authorPicture?.url ? (
                 <MediaImage url={post.authorPicture.url} alt={post.authorUsername} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-white text-sm font-medium">{initials(post.authorUsername)}</span>
+                <span className="text-primary-foreground text-sm font-medium">{initials(post.authorUsername)}</span>
               )}
             </div>
             <div>
-              <p className="font-medium leading-none mb-1 text-[#1F453F]">{post.authorUsername}</p>
+              <p className="font-medium leading-none mb-1 text-brand-title">{post.authorUsername}</p>
               <p className="text-xs text-muted-foreground">{timestamp}{post.edited ? " • edited" : ""}</p>
             </div>
           </div>
@@ -77,8 +77,8 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
                 title={confirmDelete ? "Click again to confirm" : "Delete post"}
                 className={`p-1.5 rounded-lg transition-colors ${
                   confirmDelete
-                    ? "bg-rose-100 text-rose-600"
-                    : "text-muted-foreground hover:text-rose-500 hover:bg-rose-50"
+                    ? "bg-danger-bg text-danger-text"
+                    : "text-muted-foreground hover:text-danger-text-soft hover:bg-error-bg"
                 }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -121,11 +121,11 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
             onClick={() => onToggleLike(post)}
             className={`gap-1.5 rounded-lg ${
               post.likedByMe
-                ? "text-rose-500 bg-rose-50 hover:bg-rose-100"
-                : "text-muted-foreground hover:text-rose-500 hover:bg-rose-50"
+                ? "text-danger-text-soft bg-error-bg hover:bg-danger-bg"
+                : "text-muted-foreground hover:text-danger-text-soft hover:bg-error-bg"
             }`}
           >
-            <Heart className={`w-4 h-4 ${post.likedByMe ? "fill-rose-500" : ""}`} />
+            <Heart className={`w-4 h-4 ${post.likedByMe ? "fill-danger-text-soft" : ""}`} />
             <span className="text-sm">{post.likesCount}</span>
           </Button>
 
@@ -135,8 +135,8 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
             onClick={() => setShowComments((v) => !v)}
             className={`gap-1.5 rounded-lg ${
               showComments
-                ? "text-emerald-800 bg-emerald-50"
-                : "text-muted-foreground hover:text-emerald-800 hover:bg-emerald-50"
+                ? "text-success-active-text bg-success-active-bg"
+                : "text-muted-foreground hover:text-success-active-text hover:bg-accent"
             }`}
           >
             <MessageCircle className="w-4 h-4" />
@@ -153,7 +153,7 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-4 border-t border-emerald-100/60 space-y-4">
+              <div className="pt-4 border-t border-surface-border-soft space-y-4">
                 {Array.isArray(post.comments) && post.comments.length > 0 && (
                   <div className="space-y-3">
                     {post.comments.map((c) => (
@@ -168,13 +168,13 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="bg-white/80 border-emerald-100 focus-visible:ring-emerald-300/50 text-sm"
+                    className="bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent text-sm"
                   />
                   <Button
                     onClick={handleSubmitComment}
                     disabled={!commentText.trim()}
                     size="sm"
-                    className="bg-gradient-to-r from-[#1F453F] to-[#3C7680] hover:from-[#16352F] hover:to-[#2F6068] text-white"
+                    className="bg-gradient-to-r from-primary to-brand-secondary hover:from-brand-primary-hover hover:to-brand-secondary-hover text-primary-foreground"
                   >
                     Post
                   </Button>
@@ -191,15 +191,15 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
 function CommentNode({ node, depth = 0 }) {
   return (
     <div className={`flex gap-3 ${depth ? "ml-6" : ""}`}>
-      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-[#3C7680] flex items-center justify-center flex-shrink-0 overflow-hidden">
+      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-reply-grad-start to-brand-secondary flex items-center justify-center flex-shrink-0 overflow-hidden">
         {node.authorPicture?.url ? (
           <MediaImage url={node.authorPicture.url} alt={node.authorUsername} className="w-full h-full object-cover" />
         ) : (
-          <span className="text-white text-xs font-medium">{initials(node.authorUsername)}</span>
+          <span className="text-primary-foreground text-xs font-medium">{initials(node.authorUsername)}</span>
         )}
       </div>
-      <div className="flex-1 bg-white/70 rounded-xl px-3 py-2 shadow-sm">
-        <p className="text-xs font-medium text-[#1F453F] mb-0.5">
+      <div className="flex-1 bg-surface-card-70 rounded-xl px-3 py-2 shadow-sm">
+        <p className="text-xs font-medium text-brand-title mb-0.5">
           {node.authorUsername}
           {node.edited ? " • edited" : ""}
         </p>

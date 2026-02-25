@@ -54,19 +54,19 @@ export function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5F7F5] via-white to-emerald-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
 
-        <Card className="shadow-lg border-emerald-100/60">
+        <Card className="shadow-lg border-surface-border-soft">
           <CardContent className="p-7">
-            <h2 className="text-xl font-semibold text-[#1F453F] mb-1">Create your account</h2>
+            <h2 className="text-xl font-semibold text-brand-title mb-1">Create your account</h2>
             <p className="text-sm text-muted-foreground mb-6">Start a calmer, mood-aware feed.</p>
 
             {error && (
-              <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 whitespace-pre-line">
+              <div className="mb-4 rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
                 {error}
               </div>
             )}
@@ -80,7 +80,7 @@ export function SignupPage() {
                   minLength={4}
                   maxLength={50}
                   autoComplete="username"
-                  className="mt-1 bg-white/80 border-emerald-100 focus-visible:ring-emerald-300/50"
+                  className="mt-1 bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent"
                   placeholder="yourname"
                 />
               </div>
@@ -93,7 +93,7 @@ export function SignupPage() {
                   required
                   maxLength={100}
                   autoComplete="email"
-                  className="mt-1 bg-white/80 border-emerald-100 focus-visible:ring-emerald-300/50"
+                  className="mt-1 bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent"
                   placeholder="you@example.com"
                 />
               </div>
@@ -107,7 +107,7 @@ export function SignupPage() {
                   minLength={8}
                   maxLength={100}
                   autoComplete="new-password"
-                  className="mt-1 bg-white/80 border-emerald-100 focus-visible:ring-emerald-300/50"
+                  className="mt-1 bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent"
                   placeholder="••••••••"
                 />
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
@@ -118,14 +118,14 @@ export function SignupPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#1F453F] to-[#3C7680] hover:from-[#16352F] hover:to-[#2F6068] text-white"
+                className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:from-brand-primary-hover hover:to-brand-secondary-hover text-primary-foreground"
               >
                 {loading ? "Creating…" : "Create account"}
               </Button>
 
               <p className="text-sm text-muted-foreground text-center">
                 Already have an account?{" "}
-                <Link to="/login" className="text-[#3C7680] hover:underline font-medium">
+                <Link to="/login" className="text-brand-link hover:underline font-medium">
                   Sign in
                 </Link>
               </p>

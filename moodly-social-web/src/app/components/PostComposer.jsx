@@ -33,11 +33,11 @@ export function PostComposer({ onCreate, loading }) {
   };
 
   return (
-    <Card className="border-emerald-100/50 shadow-sm">
+    <Card className="border-surface-border-muted shadow-sm">
       <CardContent className="p-6 space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-sm font-medium text-[#1F453F]">New Pulse</h2>
+          <h2 className="text-sm font-medium text-brand-title">New Pulse</h2>
         </div>
 
         {/* Content */}
@@ -45,7 +45,7 @@ export function PostComposer({ onCreate, loading }) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="What’s your mood today? Share your pulse…"
-          className="min-h-[120px] bg-white/80 border-emerald-100 focus-visible:ring-emerald-300/50"
+          className="min-h-[120px] bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent"
           maxLength={2000}
         />
 
@@ -63,7 +63,7 @@ export function PostComposer({ onCreate, loading }) {
                   setFiles(Array.from(e.target.files || []).slice(0, 5))
                 }
               />
-              <span className="inline-flex cursor-pointer items-center rounded-lg border border-emerald-100 bg-white/80 px-3 py-1.5 text-xs hover:bg-emerald-50">
+              <span className="inline-flex cursor-pointer items-center rounded-lg border border-surface-border bg-surface-card-80 px-3 py-1.5 text-xs hover:bg-accent">
                 Add images
               </span>
             </label>
@@ -80,7 +80,7 @@ export function PostComposer({ onCreate, loading }) {
             {/* IMPORTANT: z-index wrapper so dropdown renders above without messing layout */}
             <div className="relative z-30">
               <Select value={mood} onValueChange={setMood}>
-                <SelectTrigger className="w-[160px] bg-white/80 border-emerald-100">
+                <SelectTrigger className="w-[160px] bg-surface-card-80 border-surface-border">
                   <SelectValue placeholder="Select mood" />
                 </SelectTrigger>
                 <SelectContent align="end" className="z-50">
@@ -100,7 +100,7 @@ export function PostComposer({ onCreate, loading }) {
             <Button
               onClick={handleSubmit}
               disabled={!canPost || loading}
-              className="w-24 bg-gradient-to-r from-[#1F453F] to-[#3C7680] hover:from-[#16352F] hover:to-[#2F6068] text-white"
+              className="w-24 bg-gradient-to-r from-primary to-brand-secondary hover:from-brand-primary-hover hover:to-brand-secondary-hover text-primary-foreground"
             >
               {loading ? "Posting…" : "Post"}
             </Button>
