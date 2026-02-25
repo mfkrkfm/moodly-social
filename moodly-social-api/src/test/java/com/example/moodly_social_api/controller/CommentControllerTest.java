@@ -52,6 +52,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Creating a new comment on a post.
     void createComment_shouldReturnCreatedComment() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -79,6 +80,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to create a comment with empty content which should result in a bad request response.
     void createComment_withEmptyContent_shouldReturnBadRequest() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -96,6 +98,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to create a comment on a non-existing post which should result in a not found response.
     void createComment_withNonExistingPost_shouldReturnNotFound() throws Exception {
         Long userId = 1L;
         Long postId = 999L;
@@ -114,6 +117,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Replying to an existing comment.
     void replyToComment_shouldReturnReply() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -143,6 +147,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to reply to a non-existing comment which should result in a not found response.
     void replyToComment_withNonExistingComment_shouldReturnNotFound() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -162,6 +167,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Retrieving all comments for a specific post.
     void getCommentsByPost_shouldReturnListOfComments() throws Exception {
         Long postId = 1L;
         CommentResponse comment1 = new CommentResponse();
@@ -186,6 +192,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Retrieving comments for a post that has no comments should return an empty list.
     void getCommentsByPost_withNoComments_shouldReturnEmptyList() throws Exception {
         Long postId = 1L;
 
@@ -197,6 +204,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to retrieve comments for a non-existing post should return a not found response.
     void getCommentsByPost_withNonExistingPost_shouldReturnNotFound() throws Exception {
         Long postId = 999L;
 
@@ -208,6 +216,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Replying to an existing comment.
     void updateComment_shouldReturnUpdatedComment() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -234,6 +243,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to update a comment with an unauthorized user should return a forbidden response.
     void updateComment_withUnauthorizedUser_shouldReturnForbidden() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -253,6 +263,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to update a non-existing comment should return a not found response.
     void deleteComment_shouldReturnNoContent() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -269,6 +280,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to delete a comment with an unauthorized user should return a forbidden response.
     void deleteComment_withUnauthorizedUser_shouldReturnForbidden() throws Exception {
         Long userId = 1L;
         Long postId = 1L;
@@ -284,6 +296,7 @@ class CommentControllerTest {
     }
 
     @Test
+    /// Test: Attempting to delete a non-existing comment should return a not found response.
     void deleteComment_withNonExistingComment_shouldReturnNotFound() throws Exception {
         Long userId = 1L;
         Long postId = 1L;

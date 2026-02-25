@@ -37,6 +37,7 @@ class MediaControllerTest {
     }
 
     @Test
+    /// Test: Retrieving media content by media ID.
     void getMedia_shouldReturnMediaContent() throws Exception {
         Long mediaId = 1L;
         byte[] content = "image data".getBytes();
@@ -52,6 +53,7 @@ class MediaControllerTest {
     }
 
     @Test
+    /// Test: Attempting to retrieve media that does not exist.
     void getMedia_withNonExistingMedia_shouldReturnNotFound() throws Exception {
         Long mediaId = 999L;
 
@@ -63,6 +65,7 @@ class MediaControllerTest {
     }
 
     @Test
+    /// Test: Attempting to retrieve media that has been deleted.
     void getMedia_withDeletedMedia_shouldReturnNotFound() throws Exception {
         Long mediaId = 1L;
 
@@ -74,6 +77,7 @@ class MediaControllerTest {
     }
 
     @Test
+    /// Test: Retrieving media content for a media file that is larger than the typical size.
     void getMedia_withLargeFile_shouldReturnMediaContent() throws Exception {
         Long mediaId = 1L;
         byte[] largeContent = new byte[1024 * 1024]; // 1MB
@@ -90,6 +94,7 @@ class MediaControllerTest {
     }
 
     @Test
+    /// Test: Retrieving media content for a media file that has no content (e.g., an empty file).
     void getMedia_withEmptyContent_shouldReturnEmptyResponse() throws Exception {
         Long mediaId = 1L;
         byte[] emptyContent = new byte[0];
@@ -103,6 +108,7 @@ class MediaControllerTest {
     }
 
     @Test
+    /// Test: Attempting to retrieve media with an invalid media ID.
     void getMedia_withInvalidMediaId_shouldReturnBadRequest() throws Exception {
         Long mediaId = -1L;
 
@@ -114,6 +120,7 @@ class MediaControllerTest {
     }
 
     @Test
+    /// Test: Attempting to retrieve media when the service layer throws an unexpected exception.
     void getMedia_withServiceError_shouldReturnInternalServerError() throws Exception {
         Long mediaId = 1L;
 
