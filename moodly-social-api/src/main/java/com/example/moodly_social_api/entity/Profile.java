@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,13 +38,16 @@ public class Profile {
     @JoinColumn(name = "picture_id", unique = true)
     private Picture profilePicture;
 
+    @OneToOne(mappedBy = "profile", fetch = FetchType.LAZY)
+    private User user;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "user-post")
-    private List<Post> posts;
+    private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "user-comment")
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     @ManyToMany(mappedBy = "likedBy")
     private Set<Post> likedPosts = new HashSet<>();
@@ -55,7 +59,11 @@ public class Profile {
     @JoinTable(
             name = "profile_followers",
             joinColumns = @JoinColumn(name = "follower_id"),
-            inverseJoinColumns = @JoinColumn(name = "followed_id")
+            inverseJoinColumns = @JoinColumn(name = "followed_id"),
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uk_profile_followers_follower_followed",
+                    columnNames = {"follower_id", "followed_id"}
+            )
     )
     private Set<Profile> following = new HashSet<>();
 

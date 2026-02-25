@@ -1,0 +1,16 @@
+import { apiClient } from "../../shared/api/apiClient";
+
+export async function signup(payload) {
+  const { data } = await apiClient.post("/auth/signup", payload);
+  return data;
+}
+
+export async function signin(payload) {
+  const { data } = await apiClient.post("/auth/signin", payload);
+  return data;
+}
+
+export async function getMe() {
+  const { data } = await apiClient.get("/users/me");
+  return data;
+}

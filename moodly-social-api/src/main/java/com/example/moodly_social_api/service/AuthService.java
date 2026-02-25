@@ -1,6 +1,9 @@
 package com.example.moodly_social_api.service;
 
-import com.example.moodly_social_api.dto.*;
+import com.example.moodly_social_api.dto.auth.AuthResponse;
+import com.example.moodly_social_api.dto.auth.LoginRequest;
+import com.example.moodly_social_api.dto.auth.SignupRequest;
+import com.example.moodly_social_api.entity.Profile;
 import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.entity.UserRole;
 import com.example.moodly_social_api.exception.CustomException;
@@ -15,7 +18,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +50,7 @@ public class AuthService {
                     ));
 
             String token = jwtTokenProvider.createToken(
-                    user.getUsername(),
+                    user.getId(),
                     user.getAppUserRoles()
             );
 
@@ -57,7 +59,11 @@ public class AuthService {
                     user.getId(),
                     user.getUsername(),
                     user.getEmail(),
-                    user.getAppUserRoles().getFirst().name()
+                    user.getAppUserRoles()
+                            .stream()
+                            .map(Enum::name)
+                            .toList(),
+                    user.getProfile().getId()
             );
 
         } catch (AuthenticationException e) {
@@ -86,11 +92,13 @@ public class AuthService {
         // Assign default role
         user.setAppUserRoles(getDefaultRoles());
 
+        user.setProfile(new Profile());
+
         User savedUser = userRepository.save(user);
 
         // Generate JWT
         String token = jwtTokenProvider.createToken(
-                savedUser.getUsername(),
+                savedUser.getId(),
                 savedUser.getAppUserRoles()
         );
 
@@ -99,19 +107,12 @@ public class AuthService {
                 savedUser.getId(),
                 savedUser.getUsername(),
                 savedUser.getEmail(),
-                String.valueOf(savedUser.getAppUserRoles()
+                savedUser.getAppUserRoles()
                         .stream()
                         .map(Enum::name)
-                        .collect(Collectors.toList()))
+                        .toList(),
+                savedUser.getProfile().getId()
         );
-    }
-
-
-    public void delete(String username) {
-        if (!userRepository.existsByUsername(username)) {
-            throw new CustomException("User not found", HttpStatus.NOT_FOUND);
-        }
-        userRepository.deleteByUsername(username);
     }
 
     private List<UserRole> getDefaultRoles() {
