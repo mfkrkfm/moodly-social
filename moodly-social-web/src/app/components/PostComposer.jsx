@@ -23,9 +23,13 @@ export function PostComposer({ onCreate, loading }) {
 
   const handleSubmit = async () => {
     if (!canPost) return;
-    await onCreate({ content: content.trim(), mood, files });
-    setContent("");
-    setFiles([]);
+    try {
+      await onCreate({ content: content.trim(), mood, files });
+      setContent("");
+      setFiles([]);
+    } catch {
+      // Parent handles displaying the error; keep draft intact.
+    }
   };
 
   return (
@@ -72,7 +76,7 @@ export function PostComposer({ onCreate, loading }) {
           </div>
 
           {/* Right */}
-          <div className="flex items-end gap-3 flex-wrap justify-end">
+          <div className="flex items-end gap-3 justify-end sm:flex-nowrap flex-wrap">
             {/* IMPORTANT: z-index wrapper so dropdown renders above without messing layout */}
             <div className="relative z-30">
               <Select value={mood} onValueChange={setMood}>
@@ -96,7 +100,7 @@ export function PostComposer({ onCreate, loading }) {
             <Button
               onClick={handleSubmit}
               disabled={!canPost || loading}
-              className="bg-gradient-to-r from-[#1F453F] to-[#3C7680] hover:from-[#16352F] hover:to-[#2F6068] text-white"
+              className="w-24 bg-gradient-to-r from-[#1F453F] to-[#3C7680] hover:from-[#16352F] hover:to-[#2F6068] text-white"
             >
               {loading ? "Posting…" : "Post"}
             </Button>

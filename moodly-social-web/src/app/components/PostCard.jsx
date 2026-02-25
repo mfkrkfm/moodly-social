@@ -87,7 +87,9 @@ export function PostCard({ post, currentUsername, onToggleLike, onAddComment, on
           </div>
         </div>
 
-        <p className="text-foreground/90 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+        <p className="text-foreground/90 leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+          {post.content}
+        </p>
 
         {Array.isArray(post.pictures) && post.pictures.length > 0 && (
           <div
@@ -201,7 +203,9 @@ function CommentNode({ node, depth = 0 }) {
           {node.authorUsername}
           {node.edited ? " • edited" : ""}
         </p>
-        <p className="text-sm text-foreground/80 whitespace-pre-wrap">{node.content}</p>
+        <p className="text-sm text-foreground/80 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+          {node.content}
+        </p>
       </div>
       {Array.isArray(node.replies) && node.replies.length > 0 && (
         <div className="w-full" />

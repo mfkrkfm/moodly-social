@@ -38,14 +38,16 @@ export function FeedPage() {
 
   async function handleCreate({ content, mood, files }) {
     setPosting(true);
-    setError(null);
     try {
       const created = await createPost({ content, mood, files });
+      setError(null);
       setPosts((prev) => [created, ...prev]);
+      return created;
     } catch (err) {
       if (err instanceof HttpError) {
         setError(err.message);
       } else setError("Failed to create post");
+      throw err;
     } finally {
       setPosting(false);
     }
