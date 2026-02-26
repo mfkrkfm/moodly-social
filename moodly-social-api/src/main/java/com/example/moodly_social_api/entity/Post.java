@@ -39,6 +39,8 @@ public class Post {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime deletedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     @JsonBackReference(value = "user-post")

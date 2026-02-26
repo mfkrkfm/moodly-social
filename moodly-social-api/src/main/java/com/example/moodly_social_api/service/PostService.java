@@ -73,6 +73,7 @@ public class PostService {
         Profile currentProfile = getCurrentProfile(currentUserId);
         return postRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
+                .filter(post -> post.getDeletedAt() == null)
                 .map(post -> postMapper.toPostResponse(post, currentProfile.getId()))
                 .toList();
     }
@@ -81,12 +82,22 @@ public class PostService {
     public PostResponse getPostById(Long postId, Long currentUserId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
+
+        if (post.getDeletedAt() != null) {
+            throw new CustomException("Post not found", HttpStatus.NOT_FOUND);
+        }
+
         return postMapper.toPostResponse(post, currentProfile.getId());
     }
 
     @Transactional(readOnly = true)
     public List<ProfileResponse> getPostLikes(Long postId) {
         Post post = getPost(postId);
+
+        if (post.getDeletedAt() != null) {
+            throw new CustomException("Post not found", HttpStatus.NOT_FOUND);
+        }
+
         return profileMapper.toProfileResponses(post.getLikedBy());
     }
 
@@ -94,6 +105,10 @@ public class PostService {
     public PostResponse updatePost(Long currentUserId, Long postId, PostRequest request) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
+
+        if (post.getDeletedAt() != null) {
+            throw new CustomException("Post not found", HttpStatus.NOT_FOUND);
+        }
 
         validateAuthor(post, currentProfile);
 
@@ -110,13 +125,18 @@ public class PostService {
         Post post = getPost(postId);
 
         validateAuthor(post, currentProfile);
-        postRepository.delete(post);
+        post.setDeletedAt(LocalDateTime.now());
+        postRepository.save(post);
     }
 
     @Transactional
     public LikeResponse likePost(Long currentUserId, Long postId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
+
+        if (post.getDeletedAt() != null) {
+            throw new CustomException("Post not found", HttpStatus.NOT_FOUND);
+        }
 
         post.getLikedBy().add(currentProfile);
         return toLikeResponse(post, true);
@@ -126,6 +146,10 @@ public class PostService {
     public LikeResponse unlikePost(Long currentUserId, Long postId) {
         Profile currentProfile = getCurrentProfile(currentUserId);
         Post post = getPost(postId);
+
+        if (post.getDeletedAt() != null) {
+            throw new CustomException("Post not found", HttpStatus.NOT_FOUND);
+        }
 
         post.getLikedBy().remove(currentProfile);
         return toLikeResponse(post, false);
