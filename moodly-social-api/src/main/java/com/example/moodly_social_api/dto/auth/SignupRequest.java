@@ -14,15 +14,16 @@ import lombok.NoArgsConstructor;
 public class SignupRequest {
     @NotBlank
     @Size(min = 4, max = 50)
+    @Pattern(regexp = "^[a-zA-Z0-9_-]*$", message = "Username can only contain English letters, numbers, underscores and hyphens")
     private String username;
 
     @NotBlank
-    @Email
+    @Email(message = "Email must be a valid email address")
     @Size(max = 100)
     private String email;
 
-    @NotBlank
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,100}$")
+    @NotBlank(message = "Password is required")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,100}$", message = "Password must be 8+ characters and include uppercase, lowercase, number and special character")
     private String password;
 
 }

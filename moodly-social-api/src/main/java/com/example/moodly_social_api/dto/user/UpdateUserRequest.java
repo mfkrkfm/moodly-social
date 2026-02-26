@@ -11,10 +11,11 @@ public class UpdateUserRequest {
 
     @NotBlank
     @Size(min = 4, max = 50)
+    @Pattern(regexp = "^[a-zA-Z0-9_-]*$", message = "Username can only contain English letters, numbers, underscores and hyphens")
     private String username;
 
     @NotBlank
-    @Email
+    @Email(message = "Email must be a valid email address")
     @Size(max = 100)
     private String email;
 
