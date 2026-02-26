@@ -1,4 +1,4 @@
-# Moodly Social API
+# Moodly Social
 
 Moodly Social is a full-stack social media application built with a **Spring Boot backend** and a **React frontend**.  
 It provides secure authentication using **JWT** and supports core social features such as posts, comments, likes, and following users.
@@ -86,5 +86,6 @@ It provides secure authentication using **JWT** and supports core social feature
 
 - Postman
 - Swagger UI (springdoc-openapi)
+- UnitTests
 
 ---
