@@ -168,7 +168,7 @@ export function LoginPage() {
                       ? "border-error-border focus-visible:ring-error-border"
                       : ""
                   }`}
-                  placeholder="yourname"
+                  placeholder="username"
                 />
                 {fieldErrors.username && (
                   <p className="mt-1 text-xs text-error-text">
