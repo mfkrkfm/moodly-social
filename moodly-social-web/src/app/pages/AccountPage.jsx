@@ -33,13 +33,14 @@ function formatProblemMessage(problem, fallback) {
 
 export function AccountPage() {
   const navigate = useNavigate();
-  const session = useMemo(() => getSession(), []);
+  const [sessionState, setSessionState] = useState(() => getSession());
   const [account, setAccount] = useState(null);
   const [form, setForm] = useState({ username: "", email: "", newPassword: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
 
   async function load() {
@@ -82,6 +83,7 @@ export function AccountPage() {
   async function onSave() {
     setSaving(true);
     setError(null);
+    setSuccess(null);
     setFieldErrors({});
     try {
       const updated = await updateAccount({
@@ -91,6 +93,18 @@ export function AccountPage() {
       });
       setAccount(updated);
       setForm((f) => ({ ...f, newPassword: "" }));
+
+      // Update session in localStorage with new username and email
+      const newSession = {
+        ...getSession(),
+        username: updated.username,
+        email: updated.email,
+      };
+      saveAuthSession(newSession);
+      setSessionState(newSession);
+
+      setSuccess("Account updated successfully!");
+      setTimeout(() => setSuccess(null), 3000);
     } catch (e) {
       if (e instanceof HttpError) {
         const problem = extractProblem(e);
@@ -149,7 +163,7 @@ export function AccountPage() {
         <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <div>
             <h1 className="text-lg font-semibold text-black/90">Account</h1>
-            <p className="text-xs text-black/55">@{session?.username || account?.username}</p>
+            <p className="text-xs text-black/55">@{sessionState?.username || account?.username}</p>
           </div>
           <Link
             to="/feed"
@@ -164,6 +178,12 @@ export function AccountPage() {
         {error && (
           <div className="rounded-2xl border border-error-border bg-error-bg/95 px-4 py-3 text-sm text-error-text whitespace-pre-line">
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-2xl border border-green-300 bg-green-50/95 px-4 py-3 text-sm text-green-800">
+            {success}
           </div>
         )}
 
