@@ -77,7 +77,6 @@ export function AccountPage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function onSave() {
@@ -104,10 +103,27 @@ export function AccountPage() {
         }
 
         if (problem?.errors && typeof problem.errors === "object") {
-          setFieldErrors(problem.errors);
+          const normalized = {};
+
+          if (problem.errors.username) {
+            normalized.username = "Username must be between 4 and 50 characters.";
+          }
+
+          if (problem.errors.email) {
+            normalized.email = "Enter a valid email address (max 100 characters).";
+          }
+
+          if (problem.errors.newPassword) {
+            normalized.newPassword =
+              "Password must be 8–100 characters and include uppercase, lowercase, number and special character (no spaces).";
+          }
+
+          setFieldErrors(normalized);
+          setError("Please fix the highlighted fields.");
+          return;
         }
 
-        setError(formatProblemMessage(problem, e.message || "Failed to update account"));
+        setError("Failed to update account.");
         return;
       }
 
