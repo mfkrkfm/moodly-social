@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 // -------------- Backend proxy --------------
 // Proxy ALL API-like requests to backend
 app.use(
-  ["/auth", "/profile", "/posts", "/account", "/admin", "/media"],
+  ["/auth", "/profile", "/posts", "/account", "/admin", "/media", "/users"],
   createProxyMiddleware({
     target: "http://backend:8080",
     changeOrigin: true,
