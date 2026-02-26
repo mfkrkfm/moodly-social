@@ -35,8 +35,13 @@ class SignupRequestValidationTest {
                 .collect(Collectors.toSet());
 
         assertThat(propertyPaths).containsExactlyInAnyOrder("username", "email", "password");
-
-        assertThat(violations).allMatch(v -> v.getMessage().contains("must not be blank"));
+        violations.forEach(v -> {
+            if ("password".equals(v.getPropertyPath().toString())) {
+                assertThat(v.getMessage()).isEqualTo("Password is required");
+            } else {
+                assertThat(v.getMessage()).isEqualTo("must not be blank");
+            }
+        });
     }
 
     @Test
@@ -52,7 +57,7 @@ class SignupRequestValidationTest {
         assertThat(violations).hasSize(1);
         ConstraintViolation<SignupRequest> violation = violations.iterator().next();
         assertThat(violation.getPropertyPath().toString()).isEqualTo("email");
-        assertThat(violation.getMessage()).isEqualTo("must be a well-formed email address");
+        assertThat(violation.getMessage()).isEqualTo("Email must be a valid email address");
     }
 
     @Test
