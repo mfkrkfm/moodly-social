@@ -21,6 +21,7 @@ import { EmptyState } from "../components/EmptyState.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import { getPublicProfile } from "../api/publicApi.js";
+import { getAuthorAuraColor } from "../constants/moods.js";
 
 function extractProblem(err) {
   const d = err?.details;
@@ -282,6 +283,22 @@ export function FeedPage() {
     }
   }
 
+  // Compute dominant mood border color per author
+  const authorMoodColors = useMemo(() => {
+    const byAuthor = {};
+    for (const p of posts) {
+      const author = p.authorUsername;
+      if (!author) continue;
+      if (!byAuthor[author]) byAuthor[author] = [];
+      byAuthor[author].push(p.mood);
+    }
+    const colors = {};
+    for (const [author, moods] of Object.entries(byAuthor)) {
+      colors[author] = getAuthorAuraColor(moods);
+    }
+    return colors;
+  }, [posts]);
+
   const filteredPosts = useMemo(() => {
     // if user mode, don’t filter posts (you can change this if you want)
     if (isUserMode) return posts;
@@ -413,6 +430,7 @@ export function FeedPage() {
                 key={p.id}
                 post={p}
                 currentUsername={currentUsername}
+                authorMoodColor={authorMoodColors[p.authorUsername]}
                 onToggleLike={handleToggleLike}
                 onLoadComments={refreshComments}
                 onAddComment={handleAddComment}

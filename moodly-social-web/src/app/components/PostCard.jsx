@@ -29,6 +29,7 @@ function initials(name) {
 export function PostCard({
   post,
   currentUsername,
+  authorMoodColor,
   onToggleLike,
   onLoadComments,
   onAddComment,
@@ -122,7 +123,10 @@ export function PostCard({
       <CardContent className="relative space-y-4 p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-black/10">
+            <div
+              className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-black/10 ring-2 ring-offset-1"
+              style={{ '--tw-ring-color': authorMoodColor || '#9CA3AF' }}
+            >
               {post.authorPicture?.url ? (
                 <MediaImage
                   url={post.authorPicture.url}

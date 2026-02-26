@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getPost, listComments, like, unlike, addComment, replyToComment, updatePost, updateComment, deletePost } from "../api/postsApi.js";
+import { getPublicPosts } from "../api/profileApi.js";
 import { getSession } from "../api/authStore.js";
 import { PostCard } from "../components/PostCard.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
 import { HttpError } from "../api/http.js";
+import { getAuthorAuraColor } from "../constants/moods.js";
 
 export function PostPage() {
   const { postId } = useParams();
@@ -12,6 +14,7 @@ export function PostPage() {
   const currentUsername = session?.username || null;
 
   const [post, setPost] = useState(null);
+  const [authorPosts, setAuthorPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -36,6 +39,13 @@ export function PostPage() {
     try {
       const p = await getPost(postId);
       setPost(p);
+      // Load author's posts for dominant mood color
+      try {
+        const posts = await getPublicPosts(p.authorUsername);
+        setAuthorPosts(Array.isArray(posts) ? posts : []);
+      } catch {
+        setAuthorPosts([]);
+      }
     } catch (e) {
       setError(e?.message || "Failed to load post");
     } finally {
@@ -46,6 +56,8 @@ export function PostPage() {
   useEffect(() => {
     load();
   }, [postId]);
+
+  const authorMoodColor = useMemo(() => getAuthorAuraColor(authorPosts.map(p => p.mood)), [authorPosts]);
 
   async function handleToggleLike(p) {
     // optimistic
@@ -147,6 +159,7 @@ export function PostPage() {
           <PostCard
             post={post}
             currentUsername={currentUsername}
+            authorMoodColor={authorMoodColor}
             onToggleLike={handleToggleLike}
             onLoadComments={refreshComments}
             onAddComment={handleAddComment}

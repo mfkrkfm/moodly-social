@@ -9,6 +9,7 @@ import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { EmptyState } from "../components/EmptyState.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
+import { getAuthorAuraColor } from "../constants/moods.js";
 
 export function PublicProfilePage() {
   const { username } = useParams();
@@ -38,6 +39,8 @@ export function PublicProfilePage() {
   useEffect(() => {
     load();
   }, [username]);
+
+  const dominantMoodColor = useMemo(() => getAuthorAuraColor(posts.map(p => p.mood)), [posts]);
 
   async function onToggleFollow() {
     if (!profile?.username) return;
@@ -96,7 +99,10 @@ export function PublicProfilePage() {
         <Card className="glass-hover">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
+              <div
+                className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center ring-3 ring-offset-2"
+                style={{ '--tw-ring-color': dominantMoodColor }}
+              >
                 {profile?.authorPicture?.url ? (
                   <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
@@ -142,7 +148,7 @@ export function PublicProfilePage() {
                   className="block"
                 >
                   {/* Read-only: we reuse PostCard but don’t pass actions */}
-                  <PostCard post={p} currentUsername={me} />
+                  <PostCard post={p} currentUsername={me} authorMoodColor={dominantMoodColor} />
                 </Link>
               </div>
             ))}
