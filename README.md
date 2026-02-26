@@ -86,5 +86,6 @@ It provides secure authentication using **JWT** and supports core social feature
 
 - Postman
 - Swagger UI (springdoc-openapi)
+- Unit Tests
 
 ---
