@@ -10,15 +10,17 @@ import java.time.LocalDate;
 public class UpdateProfileRequest {
 
     @Size(max = 100)
+    @Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ\\s\\-']*$", message = "First name can only contain letters, spaces, hyphens and apostrophes")
     private String firstName;
 
     @Size(max = 100)
+    @Pattern(regexp = "^[a-zA-Zа-яА-ЯёЁ\\s\\-']*$", message = "Last name can only contain letters, spaces, hyphens and apostrophes")
     private String lastName;
 
     @Size(max = 500)
     private String bio;
 
-    @Past
+    @Past(message = "Birth date must be in the past")
     private LocalDate birthDate;
 
     private Mood mood;
