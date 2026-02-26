@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { getMoodVisual } from "../constants/moods.js";
+import { listLikes } from "../api/postsApi.js";
 import { MediaImage } from "./MediaImage.jsx";
 import { MoodBadge } from "./MoodBadge.jsx";
 import { Button } from "./ui/button.jsx";
@@ -42,6 +44,13 @@ export function PostCard({
   const [postDraft, setPostDraft] = useState(post.content || "");
   const [savingPostEdit, setSavingPostEdit] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  // Likes modal
+  const [likesOpen, setLikesOpen] = useState(false);
+  const [likesLoading, setLikesLoading] = useState(false);
+  const [likesError, setLikesError] = useState(null);
+  const [likesUsers, setLikesUsers] = useState([]);
+
   const timestamp = useMemo(() => formatTime(post.createdAt), [post.createdAt]);
   const isOwn = currentUsername && post.authorUsername === currentUsername;
   const mood = getMoodVisual(post.mood);
@@ -92,6 +101,21 @@ export function PostCard({
     }
   };
 
+  const openLikes = async () => {
+    setLikesOpen(true);
+    setLikesError(null);
+    setLikesLoading(true);
+    try {
+      const users = await listLikes(post.id);
+      setLikesUsers(Array.isArray(users) ? users : []);
+    } catch (e) {
+      setLikesUsers([]);
+      setLikesError(e?.message || "Failed to load likes");
+    } finally {
+      setLikesLoading(false);
+    }
+  };
+
   return (
     <Card className="glass relative overflow-hidden transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)]">
       <div className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-10" style={moodOverlayStyle} />
@@ -113,7 +137,12 @@ export function PostCard({
               )}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-black/90">{post.authorUsername}</p>
+              <Link
+                to={`/u/${encodeURIComponent(post.authorUsername)}`}
+                className="truncate text-sm font-semibold text-black/90 hover:underline"
+              >
+                {post.authorUsername}
+              </Link>
               <p className="text-xs text-black/50">
                 {timestamp}
                 {post.edited ? " • edited" : ""}
@@ -177,7 +206,11 @@ export function PostCard({
         {Array.isArray(post.pictures) && post.pictures.length > 0 && (
           <div
             className={`grid gap-2 ${
-              post.pictures.length === 1 ? "grid-cols-1" : post.pictures.length === 2 ? "grid-cols-2" : "grid-cols-3"
+              post.pictures.length === 1
+                ? "grid-cols-1"
+                : post.pictures.length === 2
+                  ? "grid-cols-2"
+                  : "grid-cols-3"
             }`}
           >
             {post.pictures.slice(0, 6).map((pic) => (
@@ -207,11 +240,17 @@ export function PostCard({
           </button>
 
           <button
+            type="button"
+            onClick={openLikes}
+            className="inline-flex items-center rounded-full px-3 py-2 text-sm text-black/60 transition hover:bg-black/5 hover:text-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
+          >
+            Liked by
+          </button>
+
+          <button
             onClick={handleToggleComments}
             className={`inline-flex items-center gap-1.5 rounded-full p-2 text-sm transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 ${
-              showComments
-                ? "bg-black/6 text-black/80"
-                : "text-black/60 hover:bg-black/5 hover:text-black/80"
+              showComments ? "bg-black/6 text-black/80" : "text-black/60 hover:bg-black/5 hover:text-black/80"
             }`}
           >
             <MessageCircle className="h-4 w-4" />
@@ -263,6 +302,69 @@ export function PostCard({
                   </Button>
                 </div>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Likes modal */}
+        <AnimatePresence>
+          {likesOpen && (
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLikesOpen(false)}
+            >
+              <motion.div
+                className="w-full max-w-md rounded-2xl border border-black/10 bg-white/90 p-4 shadow-xl backdrop-blur"
+                initial={{ scale: 0.98, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.98, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-black/85">Likes</p>
+                  <button className="control-pill" type="button" onClick={() => setLikesOpen(false)}>
+                    Close
+                  </button>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {likesLoading ? (
+                    <p className="text-sm text-black/55">Loading…</p>
+                  ) : likesError ? (
+                    <p className="text-sm text-error-text whitespace-pre-line">{likesError}</p>
+                  ) : likesUsers.length === 0 ? (
+                    <p className="text-sm text-black/55">No likes yet.</p>
+                  ) : (
+                    likesUsers.map((u) => (
+                      <div
+                        key={u.username}
+                        className="flex items-center gap-3 rounded-xl border border-black/10 bg-white/60 p-3"
+                      >
+                        <div className="h-9 w-9 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
+                          {u.authorPicture?.url ? (
+                            <MediaImage
+                              url={u.authorPicture.url}
+                              alt={u.username}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-sm font-medium text-black/70">{initials(u.username)}</span>
+                          )}
+                        </div>
+                        <Link
+                          to={`/u/${encodeURIComponent(u.username)}`}
+                          className="text-sm font-medium text-black/85 hover:underline"
+                        >
+                          @{u.username}
+                        </Link>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -336,11 +438,7 @@ function CommentNode({ node, postId, currentUsername, depth = 0, onReply, onEdit
       <div className="flex min-w-0 gap-3">
         <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-black/10">
           {node.authorPicture?.url ? (
-            <MediaImage
-              url={node.authorPicture.url}
-              alt={node.authorUsername}
-              className="h-full w-full object-cover"
-            />
+            <MediaImage url={node.authorPicture.url} alt={node.authorUsername} className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-xs font-medium text-black/70">
               {initials(node.authorUsername)}
@@ -377,20 +475,14 @@ function CommentNode({ node, postId, currentUsername, depth = 0, onReply, onEdit
                 <Button
                   className="h-8 rounded-full bg-black px-3 text-xs text-white hover:bg-black/90 disabled:bg-black/10 disabled:text-black/35"
                   onClick={submitEdit}
-                  disabled={
-                    savingEdit ||
-                    !editText.trim() ||
-                    editText.trim() === (node.content || "").trim()
-                  }
+                  disabled={savingEdit || !editText.trim() || editText.trim() === (node.content || "").trim()}
                 >
                   {savingEdit ? "Saving..." : "Save"}
                 </Button>
               </div>
             </div>
           ) : (
-            <p className="whitespace-pre-wrap text-sm text-black/80 break-words [overflow-wrap:anywhere]">
-              {node.content}
-            </p>
+            <p className="whitespace-pre-wrap text-sm text-black/80 break-words [overflow-wrap:anywhere]">{node.content}</p>
           )}
 
           <div className="mt-2 flex items-center gap-3">

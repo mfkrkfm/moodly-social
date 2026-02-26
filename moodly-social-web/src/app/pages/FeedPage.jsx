@@ -52,6 +52,23 @@ export function FeedPage() {
     load();
   }, []);
 
+  function extractProblem(err) {
+    const d = err?.details;
+    if (d && typeof d === "object") return d;
+
+    const tryParse = (v) => {
+      if (!v || typeof v !== "string") return null;
+      try {
+        const obj = JSON.parse(v);
+        return obj && typeof obj === "object" ? obj : null;
+      } catch {
+        return null;
+      }
+    };
+
+    return tryParse(err?.details) || tryParse(err?.message) || null;
+  }
+
   async function handleCreate({ content, mood, files }) {
     setPosting(true);
     try {
@@ -60,10 +77,23 @@ export function FeedPage() {
       setPosts((prev) => [created, ...prev]);
       return created;
     } catch (err) {
-      if (err instanceof HttpError) {
-        setError(err.message);
-      } else setError("Failed to create post");
-      throw err;
+      const problem = extractProblem(err);
+      const detail = problem?.detail || "";
+
+      if (detail.includes("Daily post limit")) {
+        const friendly = "You’ve reached your daily limit of 3 posts. Come back tomorrow ✨";
+        setError(friendly);
+        throw new Error(friendly);
+      }
+
+      if (detail) {
+        setError(detail);
+        throw new Error(detail);
+      }
+
+      const fallback = err?.message || "Failed to create post";
+      setError(fallback);
+      throw new Error(fallback);
     } finally {
       setPosting(false);
     }
@@ -178,6 +208,23 @@ export function FeedPage() {
             >
               Profile
             </Link>
+
+            <Link
+              to="/account"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-black/10 bg-white/60 px-3 text-xs font-medium text-black/75 transition hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
+            >
+              Account
+            </Link>
+
+            {(session?.roles || []).includes("ROLE_ADMIN") && (
+              <Link
+                to="/admin/users"
+                className="inline-flex h-9 items-center justify-center rounded-full border border-black/10 bg-white/60 px-3 text-xs font-medium text-black/75 transition hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
+              >
+                Admin
+              </Link>
+            )}
+
             <Button
               variant="outline"
               onClick={() => {

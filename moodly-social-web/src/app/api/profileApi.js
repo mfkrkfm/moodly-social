@@ -34,3 +34,15 @@ export function follow(username) {
 export function unfollow(username) {
   return http(`/${encodeURIComponent(username)}/followers`, { method: "DELETE" });
 }
+
+export function getPublicPost(username, postId) {
+  return http(`/${encodeURIComponent(username)}/posts/${postId}`, { method: "GET" });
+}
+
+export function getFollowers(username) {
+  return http(`/${encodeURIComponent(username)}/followers`, { method: "GET" });
+}
+
+export function getFollowing(username) {
+  return http(`/${encodeURIComponent(username)}/following`, { method: "GET" });
+}
