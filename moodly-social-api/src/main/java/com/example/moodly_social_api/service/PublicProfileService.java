@@ -50,6 +50,15 @@ public class PublicProfileService {
     }
 
     @Transactional(readOnly = true)
+    public List<PublicUserCardResponse> searchUsers(String query) {
+        return userRepository.findTop20ByUsernameContainingIgnoreCase(query)
+                .stream()
+                .filter(user -> user.getProfile() != null)
+                .map(user -> toPublicUserCardResponse(user.getProfile()))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<PublicUserCardResponse> getFollowers(String username) {
         Profile profile = findProfileByUsername(username);
         return profile.getFollowers()

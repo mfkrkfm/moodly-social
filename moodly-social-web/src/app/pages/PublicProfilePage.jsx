@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
 import { getPublicProfile, getPublicPosts, follow, unfollow } from "../api/profileApi.js";
+import { getAuthorAuraColor } from "../constants/moods.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { PostCard } from "../components/PostCard.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
@@ -21,6 +22,22 @@ export function PublicProfilePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
+  const ERROR_MAP = {
+    "User not found": "This user was not found.",
+    "Profile not found": "This user's profile was not found.",
+    "Post not found": "This post no longer exists or has been deleted.",
+  };
+
+  function friendlyError(err, fallback) {
+    const msg = err?.message || "";
+    return ERROR_MAP[msg] || msg || fallback;
+  }
+
+  const authorAuraColor = useMemo(
+    () => getAuthorAuraColor(posts.map((p) => p.mood).filter(Boolean)),
+    [posts]
+  );
+
   async function load() {
     setLoading(true);
     setError(null);
@@ -29,7 +46,7 @@ export function PublicProfilePage() {
       setProfile(p);
       setPosts(Array.isArray(list) ? list : []);
     } catch (e) {
-      setError(e?.message || "Failed to load profile");
+      setError(friendlyError(e, "Failed to load profile"));
     } finally {
       setLoading(false);
     }
@@ -49,7 +66,7 @@ export function PublicProfilePage() {
       setProfile((p) => (p ? { ...p, following: res.following, followersCount: res.followersCount } : p));
     } catch (e) {
       if (e instanceof HttpError && e.details?.errors) setError(Object.values(e.details.errors).join("\n"));
-      else setError(e?.message || "Failed to update follow");
+      else setError(friendlyError(e, "Failed to update follow"));
     } finally {
       setBusy(false);
     }
@@ -96,7 +113,10 @@ export function PublicProfilePage() {
         <Card className="glass-hover">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
+              <div
+                className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center"
+                style={authorAuraColor ? { boxShadow: `0 0 0 3px ${authorAuraColor}` } : undefined}
+              >
                 {profile?.authorPicture?.url ? (
                   <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
@@ -142,7 +162,7 @@ export function PublicProfilePage() {
                   className="block"
                 >
                   {/* Read-only: we reuse PostCard but don’t pass actions */}
-                  <PostCard post={p} currentUsername={me} />
+                  <PostCard post={p} currentUsername={me} authorAuraColor={authorAuraColor} />
                 </Link>
               </div>
             ))}

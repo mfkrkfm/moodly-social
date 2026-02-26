@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getPublicPost } from "../api/profileApi.js";
+import { getAuthorAuraColor } from "../constants/moods.js";
 import { PostCard } from "../components/PostCard.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
 
@@ -10,6 +11,17 @@ export function PublicPostPage() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const ERROR_MAP = {
+    "User not found": "This user was not found.",
+    "Profile not found": "This user's profile was not found.",
+    "Post not found": "This post no longer exists or has been deleted.",
+  };
+
+  function friendlyError(err, fallback) {
+    const msg = err?.message || "";
+    return ERROR_MAP[msg] || msg || fallback;
+  }
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -18,7 +30,7 @@ export function PublicPostPage() {
         const p = await getPublicPost(username, postId);
         setPost(p);
       } catch (e) {
-        setError(e?.message || "Failed to load post");
+        setError(friendlyError(e, "Failed to load post"));
       } finally {
         setLoading(false);
       }
@@ -44,7 +56,7 @@ export function PublicPostPage() {
           </div>
         )}
 
-        {loading ? <LoadingState /> : post ? <PostCard post={post} /> : null}
+        {loading ? <LoadingState /> : post ? <PostCard post={post} authorAuraColor={post.mood ? getAuthorAuraColor([post.mood]) : null} /> : null}
       </main>
     </div>
   );
