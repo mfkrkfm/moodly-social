@@ -54,7 +54,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getPublicProfile(username)).thenReturn(response);
 
-        mockMvc.perform(get("/{username}", username))
+        mockMvc.perform(get("/users/{username}", username))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(username))
                 .andExpect(jsonPath("$.bio").value("Test bio"))
@@ -72,7 +72,7 @@ class PublicProfileControllerTest {
         when(publicProfileService.getPublicProfile(username))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(get("/{username}", username))
+        mockMvc.perform(get("/users/{username}", username))
                 .andExpect(status().isNotFound());
     }
 
@@ -92,7 +92,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getUserPosts(username)).thenReturn(posts);
 
-        mockMvc.perform(get("/{username}/posts", username))
+        mockMvc.perform(get("/users/{username}/posts", username))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -108,7 +108,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getUserPosts(username)).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/{username}/posts", username))
+        mockMvc.perform(get("/users/{username}/posts", username))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -121,7 +121,7 @@ class PublicProfileControllerTest {
         when(publicProfileService.getUserPosts(username))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(get("/{username}/posts", username))
+        mockMvc.perform(get("/users/{username}/posts", username))
                 .andExpect(status().isNotFound());
     }
 
@@ -136,7 +136,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getUserPostById(username, postId)).thenReturn(response);
 
-        mockMvc.perform(get("/{username}/posts/{postId}", username, postId))
+        mockMvc.perform(get("/users/{username}/posts/{postId}", username, postId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(postId))
                 .andExpect(jsonPath("$.content").value("Test post"));
@@ -153,7 +153,7 @@ class PublicProfileControllerTest {
         when(publicProfileService.getUserPostById(username, postId))
                 .thenThrow(new CustomException("Post not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(get("/{username}/posts/{postId}", username, postId))
+        mockMvc.perform(get("/users/{username}/posts/{postId}", username, postId))
                 .andExpect(status().isNotFound());
     }
 
@@ -166,7 +166,7 @@ class PublicProfileControllerTest {
         when(publicProfileService.getUserPostById(username, postId))
                 .thenThrow(new CustomException("Post not found for this user", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(get("/{username}/posts/{postId}", username, postId))
+        mockMvc.perform(get("/users/{username}/posts/{postId}", username, postId))
                 .andExpect(status().isNotFound());
     }
 
@@ -184,7 +184,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getFollowers(username)).thenReturn(followers);
 
-        mockMvc.perform(get("/{username}/followers", username))
+        mockMvc.perform(get("/users/{username}/followers", username))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].username").value("follower1"))
@@ -200,7 +200,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getFollowers(username)).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/{username}/followers", username))
+        mockMvc.perform(get("/users/{username}/followers", username))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -213,7 +213,7 @@ class PublicProfileControllerTest {
         when(publicProfileService.getFollowers(username))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(get("/{username}/followers", username))
+        mockMvc.perform(get("/users/{username}/followers", username))
                 .andExpect(status().isNotFound());
     }
 
@@ -231,7 +231,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getFollowing(username)).thenReturn(following);
 
-        mockMvc.perform(get("/{username}/following", username))
+        mockMvc.perform(get("/users/{username}/following", username))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].username").value("following1"))
@@ -247,7 +247,7 @@ class PublicProfileControllerTest {
 
         when(publicProfileService.getFollowing(username)).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/{username}/following", username))
+        mockMvc.perform(get("/users/{username}/following", username))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -261,7 +261,7 @@ class PublicProfileControllerTest {
         when(publicProfileService.getFollowing(username))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(get("/{username}/following", username))
+        mockMvc.perform(get("/users/{username}/following", username))
                 .andExpect(status().isNotFound());
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/{username}/followers")
+@RequestMapping("/users/{username}/followers")
 @RequiredArgsConstructor
 public class FollowController {
 
@@ -24,9 +24,9 @@ public class FollowController {
             @PathVariable String username
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        log.info("POST /{}/followers - follow: userId={}", username, currentUserId);
+        log.info("POST /users/{}/followers - follow: userId={}", username, currentUserId);
         FollowResponse response = publicProfileService.follow(currentUserId, username);
-        log.info("POST /{}/followers - followed successfully: userId={}", username, currentUserId);
+        log.info("POST /users/{}/followers - followed successfully: userId={}", username, currentUserId);
         return ResponseEntity.ok(response);
     }
 
@@ -36,9 +36,9 @@ public class FollowController {
             @PathVariable String username
     ) {
         Long currentUserId = getCurrentUserId(authentication);
-        log.info("DELETE /{}/followers - unfollow: userId={}", username, currentUserId);
+        log.info("DELETE /users/{}/followers - unfollow: userId={}", username, currentUserId);
         FollowResponse response = publicProfileService.unfollow(currentUserId, username);
-        log.info("DELETE /{}/followers - unfollowed successfully: userId={}", username, currentUserId);
+        log.info("DELETE /users/{}/followers - unfollowed successfully: userId={}", username, currentUserId);
         return ResponseEntity.ok(response);
     }
 

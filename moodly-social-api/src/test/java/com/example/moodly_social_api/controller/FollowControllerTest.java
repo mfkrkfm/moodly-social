@@ -52,7 +52,7 @@ class FollowControllerTest {
         when(authentication.getName()).thenReturn(userId.toString());
         when(publicProfileService.follow(userId, targetUsername)).thenReturn(response);
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.following").value(true))
@@ -71,7 +71,7 @@ class FollowControllerTest {
         when(publicProfileService.follow(userId, targetUsername))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isNotFound());
     }
@@ -86,7 +86,7 @@ class FollowControllerTest {
         when(publicProfileService.follow(userId, targetUsername))
                 .thenThrow(new CustomException("Already following", HttpStatus.CONFLICT));
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isConflict());
     }
@@ -101,7 +101,7 @@ class FollowControllerTest {
         when(publicProfileService.follow(userId, targetUsername))
                 .thenThrow(new CustomException("Cannot follow yourself", HttpStatus.BAD_REQUEST));
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isBadRequest());
     }
@@ -113,7 +113,7 @@ class FollowControllerTest {
 
         when(authentication.getName()).thenReturn("invalid");
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isUnauthorized());
     }
@@ -130,7 +130,7 @@ class FollowControllerTest {
         when(authentication.getName()).thenReturn(userId.toString());
         when(publicProfileService.unfollow(userId, targetUsername)).thenReturn(response);
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.following").value(false))
@@ -149,7 +149,7 @@ class FollowControllerTest {
         when(publicProfileService.unfollow(userId, targetUsername))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isNotFound());
     }
@@ -164,7 +164,7 @@ class FollowControllerTest {
         when(publicProfileService.unfollow(userId, targetUsername))
                 .thenThrow(new CustomException("Not following", HttpStatus.CONFLICT));
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isConflict());
     }
@@ -176,7 +176,7 @@ class FollowControllerTest {
 
         when(authentication.getName()).thenReturn("invalid");
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isUnauthorized());
     }
