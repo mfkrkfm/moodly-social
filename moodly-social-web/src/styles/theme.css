@@ -1,0 +1,187 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  --background: #ffffff;
+  --foreground: oklch(0.145 0 0);
+  --card: #ffffffe0;
+  --card-foreground: oklch(0.145 0 0);
+  --popover: #fffffff0;
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #000000;
+  --muted: #ffffff;
+  --muted-foreground: #000000;
+  --accent: #ffffff;
+  --accent-foreground: #000000;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(17, 17, 17, 0.12);
+  --input: transparent;
+  --input-background: #ffffffe0;
+  --switch-background: #d4d4d4;
+  --surface-card: #ffffffe0;
+  --surface-border: rgba(17, 17, 17, 0.14);
+  --error-bg: #fff1f2;
+  --error-border: #fecdd3;
+  --error-text: #be123c;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #0a84ff;
+  --radius: 1.25rem;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-surface-card: var(--surface-card);
+  --color-surface-border: var(--surface-border);
+  --color-error-bg: var(--error-bg);
+  --color-error-border: var(--error-border);
+  --color-error-text: var(--error-text);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply text-foreground;
+    background-color: var(--background);
+    background-image:
+      radial-gradient(circle at 12% -8%, rgba(10, 132, 255, 0.08), transparent 34%),
+      radial-gradient(circle at 88% 0%, rgba(52, 199, 89, 0.06), transparent 36%),
+      radial-gradient(circle at 50% 120%, rgba(0, 0, 0, 0.04), transparent 45%);
+    background-attachment: fixed;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.7);
+    box-shadow:
+      0 12px 30px rgba(0, 0, 0, 0.08),
+      0 1px 0 rgba(255, 255, 255, 0.4) inset;
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  .glass-hover {
+    @apply transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)];
+  }
+
+  .control-pill {
+    @apply inline-flex h-9 items-center rounded-full border border-black/10 bg-white/60 px-3 text-xs text-black/75 transition hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20;
+  }
+
+  .field-label {
+    @apply text-sm text-black/60;
+  }
+
+  .primary-action {
+    @apply h-10 rounded-xl bg-black text-white transition hover:bg-black/90 disabled:bg-black/10 disabled:text-black/40;
+  }
+}
