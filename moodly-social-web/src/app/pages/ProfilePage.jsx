@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture } from "../api/profileApi.js";
 import { getSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
-import { moodOptions } from "../components/MoodBadge.jsx";
+import { moodOptions } from "../constants/moods.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
+import { Textarea } from "../components/ui/textarea.jsx";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select.jsx";
 
 export function ProfilePage() {
@@ -89,55 +90,58 @@ export function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg p-6">
-        <div className="mx-auto max-w-2xl">
-          <p className="text-sm text-muted-foreground">Loading…</p>
+      <div className="min-h-screen p-6">
+        <div className="mx-auto max-w-[680px]">
+          <p className="text-sm text-black/55">Loading…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg">
-      <header className="sticky top-0 z-10 border-b border-surface-border-soft bg-surface-card-80 backdrop-blur">
-        <div className="mx-auto max-w-2xl px-4 py-4 flex items-center justify-between">
+    <div className="min-h-screen">
+      <header className="glass sticky top-0 z-20 rounded-none border-x-0 border-t-0">
+        <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <div>
-            <h1 className="text-lg font-semibold text-brand-title">Your profile</h1>
-            <p className="text-xs text-muted-foreground">@{session?.username || profile?.username}</p>
+            <h1 className="text-lg font-semibold text-black/90">Your profile</h1>
+            <p className="text-xs text-black/55">@{session?.username || profile?.username}</p>
           </div>
-          <Link to="/feed" className="text-sm text-brand-link hover:underline font-medium">
+          <Link
+            to="/feed"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-black/10 bg-white/60 px-3 text-xs font-medium text-black/75 transition hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
+          >
             Back to feed
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-8 space-y-6">
+      <main className="mx-auto max-w-[680px] space-y-5 px-3 py-5 sm:px-4 sm:py-6">
         {error && (
-          <div className="rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
+          <div className="rounded-2xl border border-error-border bg-error-bg/95 px-4 py-3 text-sm text-error-text whitespace-pre-line">
             {error}
           </div>
         )}
 
-        <Card className="border-surface-border-soft shadow-sm">
+        <Card className="glass-hover">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden bg-accent flex items-center justify-center">
+              <div className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
                 {profile?.authorPicture?.url ? (
                   <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-brand-title font-semibold text-xl">{(profile?.username || "?")[0]?.toUpperCase()}</span>
+                  <span className="text-black/80 font-semibold text-xl">{(profile?.username || "?")[0]?.toUpperCase()}</span>
                 )}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-brand-title">{profile?.username}</p>
-                <p className="text-xs text-muted-foreground">Followers {profile?.followersCount ?? 0} • Following {profile?.followingCount ?? 0}</p>
+                <p className="text-sm font-medium text-black/85">{profile?.username}</p>
+                <p className="text-xs text-black/55">Followers {profile?.followersCount ?? 0} • Following {profile?.followingCount ?? 0}</p>
               </div>
               <div className="flex items-center gap-2">
-                <label className="inline-flex cursor-pointer items-center rounded-lg border border-surface-border bg-surface-card-80 px-3 py-2 text-xs hover:bg-accent">
+                <label className="control-pill cursor-pointer active:scale-95">
                   <input type="file" accept="image/*" className="hidden" onChange={onUpload} />
                   Upload
                 </label>
-                <Button variant="outline" onClick={onDeletePicture} className="border-surface-border-strong">
+                <Button variant="outline" onClick={onDeletePicture} className="control-pill">
                   Remove
                 </Button>
               </div>
@@ -145,56 +149,56 @@ export function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card className="border-surface-border-soft shadow-sm">
+        <Card className="glass-hover">
           <CardContent className="p-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-muted-foreground">First name</label>
+                <label className="field-label">First name</label>
                 <Input
                   value={form.firstName}
                   maxLength={100}
                   onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
-                  className="mt-1 bg-surface-card-80 border-surface-border"
+                  className="mt-1"
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">Last name</label>
+                <label className="field-label">Last name</label>
                 <Input
                   value={form.lastName}
                   maxLength={100}
                   onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
-                  className="mt-1 bg-surface-card-80 border-surface-border"
+                  className="mt-1"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">Bio</label>
-              <textarea
+              <label className="field-label">Bio</label>
+              <Textarea
                 value={form.bio}
                 maxLength={500}
                 onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-                className="mt-1 w-full min-h-[100px] rounded-md border border-surface-border bg-surface-card-80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus-accent"
+                className="mt-1 min-h-[100px]"
                 placeholder="Tell people what you’re about…"
               />
-              <p className="mt-1 text-xs text-muted-foreground">{form.bio.length}/500</p>
+              <p className="mt-1 text-xs text-black/50">{form.bio.length}/500</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-muted-foreground">Birth date</label>
+                <label className="field-label">Birth date</label>
                 <Input
                   type="date"
                   value={form.birthDate || ""}
                   onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
-                  className="mt-1 bg-surface-card-80 border-surface-border"
+                  className="mt-1"
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">Mood</label>
+                <label className="field-label">Mood</label>
                 <div className="mt-1">
                   <Select value={form.mood} onValueChange={(v) => setForm((f) => ({ ...f, mood: v }))}>
-                    <SelectTrigger className="bg-surface-card-80 border-surface-border">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select mood" />
                     </SelectTrigger>
                     <SelectContent>
@@ -212,7 +216,7 @@ export function ProfilePage() {
             <Button
               onClick={onSave}
               disabled={saving}
-              className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:from-brand-primary-hover hover:to-brand-secondary-hover text-primary-foreground"
+              className="primary-action w-full"
             >
               {saving ? "Saving…" : "Save changes"}
             </Button>

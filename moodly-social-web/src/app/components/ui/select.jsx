@@ -21,7 +21,7 @@ export function SelectTrigger({ className, size = "default", children, ...props 
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "border-input data-[placeholder]:text-muted-foreground flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8",
+        "border-black/10 data-[placeholder]:text-black/40 flex w-full items-center justify-between gap-2 rounded-xl border bg-white/60 px-3 py-2 text-sm text-black/90 backdrop-blur-md transition-[color,box-shadow,border-color] outline-none focus-visible:border-black/20 focus-visible:ring-2 focus-visible:ring-black/20 disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-black/40 data-[size=default]:h-9 data-[size=sm]:h-8",
         className
       )}
       {...props}
@@ -40,7 +40,7 @@ export function SelectContent({ className, children, position = "popper", ...pro
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "bg-popover text-popover-foreground relative z-50 max-h-[280px] min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
+          "glass text-popover-foreground relative z-50 max-h-[280px] min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-xl border border-black/10",
           position === "popper" && "data-[side=bottom]:translate-y-1",
           className
         )}
@@ -61,7 +61,7 @@ export function SelectLabel({ className, ...props }) {
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn("text-muted-foreground px-2 py-1.5 text-xs", className)}
+      className={cn("px-2 py-1.5 text-xs text-black/55", className)}
       {...props}
     />
   );
@@ -72,7 +72,7 @@ export function SelectItem({ className, children, ...props }) {
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "focus:bg-black/5 focus:text-black/90 relative flex w-full cursor-default items-center gap-2 rounded-lg py-1.5 pr-8 pl-2 text-sm text-black/80 outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className
       )}
       {...props}

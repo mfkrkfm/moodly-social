@@ -5,8 +5,8 @@ export function Logo() {
     <div className="flex items-center gap-3">
       <img src={logo} alt="Moodly Social" className="w-10 h-10" />
       <div>
-        <h1 className="text-lg leading-none mb-1 text-brand-title">Moodly Social</h1>
-        <p className="text-xs text-muted-foreground">Space for your daily pulse</p>
+        <h1 className="mb-1 text-lg leading-none text-black/90">Moodly Social</h1>
+        <p className="text-xs text-black/55">Space for your daily pulse</p>
       </div>
     </div>
   );

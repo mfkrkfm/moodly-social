@@ -54,16 +54,16 @@ export function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
 
-        <Card className="shadow-lg border-surface-border-soft">
+        <Card className="glass">
           <CardContent className="p-7">
-            <h2 className="text-xl font-semibold text-brand-title mb-1">Create your account</h2>
-            <p className="text-sm text-muted-foreground mb-6">Start a calmer, mood-aware feed.</p>
+            <h2 className="mb-1 text-xl font-semibold text-black/90">Create your account</h2>
+            <p className="mb-6 text-sm text-black/55">Start a calmer, mood-aware feed.</p>
 
             {error && (
               <div className="mb-4 rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
@@ -73,33 +73,33 @@ export function SignupPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm text-muted-foreground">Username</label>
+                <label className="text-sm text-black/60">Username</label>
                 <Input
                   name="username"
                   required
                   minLength={4}
                   maxLength={50}
                   autoComplete="username"
-                  className="mt-1 bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent"
+                  className="mt-1"
                   placeholder="yourname"
                 />
               </div>
 
               <div>
-                <label className="text-sm text-muted-foreground">Email</label>
+                <label className="text-sm text-black/60">Email</label>
                 <Input
                   name="email"
                   type="email"
                   required
                   maxLength={100}
                   autoComplete="email"
-                  className="mt-1 bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent"
+                  className="mt-1"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
-                <label className="text-sm text-muted-foreground">Password</label>
+                <label className="text-sm text-black/60">Password</label>
                 <Input
                   name="password"
                   type="password"
@@ -107,10 +107,10 @@ export function SignupPage() {
                   minLength={8}
                   maxLength={100}
                   autoComplete="new-password"
-                  className="mt-1 bg-surface-card-80 border-surface-border focus-visible:ring-focus-accent"
+                  className="mt-1"
                   placeholder="••••••••"
                 />
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                <p className="mt-2 text-xs leading-relaxed text-black/55">
                   Must be 8+ characters, include uppercase, lowercase, number and special character. No spaces.
                 </p>
               </div>
@@ -118,14 +118,14 @@ export function SignupPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:from-brand-primary-hover hover:to-brand-secondary-hover text-primary-foreground"
+                className="h-10 w-full rounded-xl bg-black text-white transition hover:bg-black/90 disabled:bg-black/10 disabled:text-black/40"
               >
                 {loading ? "Creating…" : "Create account"}
               </Button>
 
-              <p className="text-sm text-muted-foreground text-center">
+              <p className="text-center text-sm text-black/55">
                 Already have an account?{" "}
-                <Link to="/login" className="text-brand-link hover:underline font-medium">
+                <Link to="/login" className="font-medium text-black/85 hover:underline">
                   Sign in
                 </Link>
               </p>

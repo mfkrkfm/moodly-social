@@ -110,14 +110,14 @@ export function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface-tint via-background to-mood-calm-bg">
-      <header className="sticky top-0 z-10 border-b border-surface-border-soft bg-surface-card-80 backdrop-blur">
-        <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between">
+    <div className="min-h-screen">
+      <header className="glass sticky top-0 z-20 rounded-none border-x-0 border-t-0">
+        <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <Logo />
           <div className="flex items-center gap-3">
             <Link
               to="/profile"
-              className="text-sm text-brand-link hover:underline font-medium"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-black/10 bg-white/60 px-3 text-xs font-medium text-black/75 transition hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
             >
               Profile
             </Link>
@@ -127,7 +127,7 @@ export function FeedPage() {
                 clearAuth();
                 window.location.href = "/login";
               }}
-              className="border-surface-border-strong"
+              className="h-9 rounded-full border-black/10 bg-white/60 px-3 text-xs text-black/75 transition hover:bg-black/5 active:scale-95"
             >
               Sign out
             </Button>
@@ -135,9 +135,9 @@ export function FeedPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-8 space-y-6">
+      <main className="mx-auto max-w-[680px] space-y-5 px-3 py-5 sm:px-4 sm:py-6">
         {error && (
-          <div className="rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
+          <div className="rounded-2xl border border-error-border bg-error-bg/95 px-4 py-3 text-sm text-error-text whitespace-pre-line">
             {error}
           </div>
         )}
@@ -149,7 +149,7 @@ export function FeedPage() {
         ) : posts.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-5">
             {posts.map((p) => (
               <PostCard
                 key={p.id}
