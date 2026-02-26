@@ -1,6 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { listFeed, createPost, like, unlike, addComment, deletePost, listComments } from "../api/postsApi.js";
+import {
+  listFeed,
+  createPost,
+  like,
+  unlike,
+  addComment,
+  replyToComment,
+  updatePost,
+  updateComment,
+  deletePost,
+  listComments,
+} from "../api/postsApi.js";
 import { getSession, clearAuth } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
 import { Logo } from "../components/Logo.jsx";
@@ -18,6 +29,11 @@ export function FeedPage() {
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState(null);
+
+  function countComments(nodes) {
+    if (!Array.isArray(nodes)) return 0;
+    return nodes.reduce((total, node) => total + 1 + countComments(node.replies), 0);
+  }
 
   async function load() {
     setError(null);
@@ -57,9 +73,13 @@ export function FeedPage() {
     try {
       const comments = await listComments(postId);
       setPosts((prev) =>
-        prev.map((p) => (p.id === postId ? { ...p, comments, commentsCount: p.commentsCount } : p))
+        prev.map((p) =>
+          p.id === postId ? { ...p, comments, commentsCount: countComments(comments) } : p
+        )
       );
+      return comments;
     } catch {
+      return [];
     }
   }
 
@@ -89,12 +109,49 @@ export function FeedPage() {
   async function handleAddComment(postId, content) {
     try {
       await addComment(postId, content);
-      setPosts((prev) =>
-        prev.map((p) => (p.id === postId ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p))
-      );
       await refreshComments(postId);
     } catch (err) {
       setError(err?.message || "Failed to add comment");
+    }
+  }
+
+  async function handleReplyComment(postId, parentCommentId, content) {
+    try {
+      await replyToComment(postId, parentCommentId, content);
+      await refreshComments(postId);
+    } catch (err) {
+      setError(err?.message || "Failed to reply");
+    }
+  }
+
+  async function handleEditPost(postId, content) {
+    const existing = posts.find((post) => post.id === postId);
+    if (!existing) return;
+
+    try {
+      const updated = await updatePost(postId, { content, mood: existing.mood });
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                ...updated,
+                comments: Array.isArray(updated?.comments) ? updated.comments : post.comments,
+              }
+            : post
+        )
+      );
+    } catch (err) {
+      setError(err?.message || "Failed to edit post");
+    }
+  }
+
+  async function handleEditComment(postId, commentId, content) {
+    try {
+      await updateComment(postId, commentId, content);
+      await refreshComments(postId);
+    } catch (err) {
+      setError(err?.message || "Failed to edit comment");
     }
   }
 
@@ -156,7 +213,11 @@ export function FeedPage() {
                 post={p}
                 currentUsername={currentUsername}
                 onToggleLike={handleToggleLike}
+                onLoadComments={refreshComments}
                 onAddComment={handleAddComment}
+                onReplyComment={handleReplyComment}
+                onEditPost={handleEditPost}
+                onEditComment={handleEditComment}
                 onDelete={handleDelete}
               />
             ))}
