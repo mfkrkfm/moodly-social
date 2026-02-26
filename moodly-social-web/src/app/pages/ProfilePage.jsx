@@ -53,6 +53,20 @@ export function ProfilePage() {
   async function onSave() {
     setSaving(true);
     setError(null);
+
+    if (form.birthDate) {
+      const date = new Date(form.birthDate);
+      const minDate = new Date("1900-01-01");
+      const maxDate = new Date();
+      maxDate.setDate(maxDate.getDate() - 1);
+
+      if (isNaN(date.getTime()) || date < minDate || date > maxDate) {
+        setError("Birth date must be a valid date between 1900 and today.");
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
       const updated = await updateMyProfile({
         firstName: form.firstName || null,
@@ -221,6 +235,8 @@ export function ProfilePage() {
               <label className="field-label">Birth date</label>
               <Input
                 type="date"
+                min="1900-01-01"
+                max={new Date(Date.now() - 86400000).toISOString().split("T")[0]}
                 value={form.birthDate || ""}
                 onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
                 className="mt-1"
