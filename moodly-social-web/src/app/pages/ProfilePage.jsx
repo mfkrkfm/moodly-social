@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture, getPublicPosts } from "../api/profileApi.js";
 import { getSession } from "../api/authStore.js";
-import { HttpError } from "../api/http.js";
 import { getAuthorAuraColor } from "../constants/moods.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
@@ -63,8 +62,33 @@ export function ProfilePage() {
       });
       setProfile(updated);
     } catch (err) {
-      if (err instanceof HttpError && err.details?.errors) setError(Object.values(err.details.errors).join("\n"));
-      else setError(err?.message || "Failed to update profile");
+      let parsed = err?.details;
+      if (!parsed || typeof parsed === "string") {
+        try { parsed = JSON.parse(err?.message || ""); } catch { parsed = null; }
+      }
+      if (!parsed || typeof parsed === "string") {
+        try { parsed = JSON.parse(String(err?.details || "")); } catch { parsed = null; }
+      }
+
+      const validationErrors = parsed?.errors;
+      if (validationErrors && typeof validationErrors === "object") {
+        const fieldMessages = {
+          firstName: "First name is invalid",
+          lastName: "Last name is invalid",
+          bio: "Bio is invalid",
+          birthDate: "Birth date must be in the past",
+        };
+        const msgs = Object.keys(validationErrors)
+          .map((field) => fieldMessages[field] || `${field} is invalid`);
+        setError(msgs.join("\n"));
+      } else {
+        const msg = err?.message || "Failed to update profile";
+        if (msg.startsWith("{") || /[^\x00-\x7F]/.test(msg)) {
+          setError("Failed to update profile. Please check your input.");
+        } else {
+          setError(msg);
+        }
+      }
     } finally {
       setSaving(false);
     }
