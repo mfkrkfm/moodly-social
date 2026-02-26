@@ -43,7 +43,16 @@ export function SignupPage() {
       saveAuthSession(res);
       navigate("/feed");
     } catch (err) {
-      if (err instanceof HttpError && err.details?.errors) {
+      if (err instanceof HttpError && err.status === 409) {
+        const detail = err.details?.detail || err.message || "";
+        if (detail.toLowerCase().includes("email")) {
+          setError("This email is already taken. Please try another one.");
+        } else if (detail.toLowerCase().includes("username")) {
+          setError("This username is already taken. Please try another one.");
+        } else {
+          setError("Conflict: these details are already in use.");
+        }
+      } else if (err instanceof HttpError && err.details?.errors) {
         setError(Object.values(err.details.errors).join("\n"));
       } else {
         setError(err?.message || "Sign-up failed");

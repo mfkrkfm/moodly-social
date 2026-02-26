@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getPost, listComments, like, unlike, addComment, replyToComment, updatePost, updateComment, deletePost } from "../api/postsApi.js";
 import { getSession } from "../api/authStore.js";
+import { getAuthorAuraColor } from "../constants/moods.js";
 import { PostCard } from "../components/PostCard.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
 import { HttpError } from "../api/http.js";
@@ -14,6 +15,17 @@ export function PostPage() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const ERROR_MAP = {
+    "User not found": "This user's profile was not found.",
+    "Profile not found": "This user's profile was not found.",
+    "Post not found": "This post no longer exists or has been deleted.",
+  };
+
+  function friendlyError(err, fallback) {
+    const msg = err?.message || "";
+    return ERROR_MAP[msg] || msg || fallback;
+  }
 
   function countComments(nodes) {
     if (!Array.isArray(nodes)) return 0;
@@ -37,7 +49,7 @@ export function PostPage() {
       const p = await getPost(postId);
       setPost(p);
     } catch (e) {
-      setError(e?.message || "Failed to load post");
+      setError(friendlyError(e, "Failed to load post"));
     } finally {
       setLoading(false);
     }
@@ -72,7 +84,7 @@ export function PostPage() {
       await addComment(postId, content);
       await refreshComments();
     } catch (e) {
-      setError(e?.message || "Failed to add comment");
+      setError(friendlyError(e, "Failed to add comment"));
     }
   }
 
@@ -81,7 +93,7 @@ export function PostPage() {
       await replyToComment(postId, parentCommentId, content);
       await refreshComments();
     } catch (e) {
-      setError(e?.message || "Failed to reply");
+      setError(friendlyError(e, "Failed to reply"));
     }
   }
 
@@ -95,7 +107,7 @@ export function PostPage() {
           : prev
       );
     } catch (e) {
-      setError(e?.message || "Failed to edit post");
+      setError(friendlyError(e, "Failed to edit post"));
     }
   }
 
@@ -104,7 +116,7 @@ export function PostPage() {
       await updateComment(postId, commentId, content);
       await refreshComments();
     } catch (e) {
-      setError(e?.message || "Failed to edit comment");
+      setError(friendlyError(e, "Failed to edit comment"));
     }
   }
 
@@ -113,7 +125,7 @@ export function PostPage() {
       await deletePost(postId);
       window.location.href = "/feed";
     } catch (e) {
-      setError(e?.message || "Failed to delete post");
+      setError(friendlyError(e, "Failed to delete post"));
     }
   }
 
@@ -147,6 +159,7 @@ export function PostPage() {
           <PostCard
             post={post}
             currentUsername={currentUsername}
+            authorAuraColor={post.mood ? getAuthorAuraColor([post.mood]) : null}
             onToggleLike={handleToggleLike}
             onLoadComments={refreshComments}
             onAddComment={handleAddComment}

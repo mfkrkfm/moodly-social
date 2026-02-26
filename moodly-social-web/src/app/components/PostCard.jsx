@@ -29,6 +29,7 @@ function initials(name) {
 export function PostCard({
   post,
   currentUsername,
+  authorAuraColor,
   onToggleLike,
   onLoadComments,
   onAddComment,
@@ -55,7 +56,6 @@ export function PostCard({
   const isOwn = currentUsername && post.authorUsername === currentUsername;
   const mood = getMoodVisual(post.mood);
 
-  const moodOverlayStyle = { backgroundColor: mood.color };
   const postCanSave =
     !!postDraft.trim() && postDraft.trim() !== (post.content || "").trim() && !savingPostEdit;
 
@@ -117,13 +117,18 @@ export function PostCard({
   };
 
   return (
-    <Card className="glass relative overflow-hidden transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)]">
-      <div className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-10" style={moodOverlayStyle} />
+    <Card
+      className="glass relative overflow-hidden transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)]"
+      style={{ borderColor: mood.color, borderWidth: "2px", borderStyle: "solid" }}
+    >
 
       <CardContent className="relative space-y-4 p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-black/10">
+            <div
+              className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-black/10"
+              style={authorAuraColor ? { boxShadow: `0 0 0 2.5px ${authorAuraColor}` } : undefined}
+            >
               {post.authorPicture?.url ? (
                 <MediaImage
                   url={post.authorPicture.url}

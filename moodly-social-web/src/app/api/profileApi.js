@@ -1,5 +1,9 @@
 import { http } from "./http.js";
 
+export function searchUsers(query) {
+  return http(`/search/users?q=${encodeURIComponent(query)}`, { method: "GET" });
+}
+
 export function getMyProfile() {
   return http("/profile", { method: "GET" });
 }

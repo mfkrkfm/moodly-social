@@ -39,3 +39,41 @@ export const moodOptions = Object.entries(moodConfig).map(([value, config]) => (
   value,
   label: `${config.emoji} ${config.label}`,
 }));
+
+const POSITIVE_MOODS = new Set(["HAPPY", "CALM"]);
+const NEGATIVE_MOODS = new Set(["SAD", "STRESSED", "ANGRY"]);
+
+function lerpChannel(a, b, t) {
+  return Math.round(a + (b - a) * t);
+}
+
+function lerpColor(hexA, hexB, t) {
+  const parse = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const [r1, g1, b1] = parse(hexA);
+  const [r2, g2, b2] = parse(hexB);
+  const r = lerpChannel(r1, r2, t);
+  const g = lerpChannel(g1, g2, t);
+  const b = lerpChannel(b1, b2, t);
+  return `rgb(${r},${g},${b})`;
+}
+
+export function getAuthorAuraColor(moods) {
+  if (!Array.isArray(moods) || moods.length === 0) return null;
+
+  let total = 0;
+  for (const m of moods) {
+    if (POSITIVE_MOODS.has(m)) total += 1;
+    else if (NEGATIVE_MOODS.has(m)) total -= 1;
+  }
+  const avg = total / moods.length; // −1 … +1
+
+  const GREEN = "#34C759";
+  const YELLOW = "#FFCC00";
+  const RED = "#FF3B30";
+
+  if (avg >= 0) {
+    return lerpColor(YELLOW, GREEN, avg);
+  }
+  return lerpColor(RED, YELLOW, 1 + avg);
+}
+
