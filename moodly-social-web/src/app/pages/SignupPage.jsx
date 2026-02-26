@@ -43,11 +43,14 @@ export function SignupPage() {
       saveAuthSession(res);
       navigate("/feed");
     } catch (err) {
-      if (err instanceof HttpError && err.details?.errors) {
-        setError(Object.values(err.details.errors).join("\n"));
-      } else {
-        setError(err?.message || "Sign-up failed");
-      }
+      console.error("Signup error caught:", err);
+
+      // err.message is already processed by pickErrorMessage in http.js
+      // so it contains the validation error text, not raw JSON
+      const errorMessage = err?.message || "Sign-up failed";
+
+      console.error("Final error message:", errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -81,8 +84,11 @@ export function SignupPage() {
                   maxLength={50}
                   autoComplete="username"
                   className="mt-1"
-                  placeholder="yourname"
+                  placeholder="username"
                 />
+                <p className="mt-1 text-xs text-black/55">
+                  Only English letters, numbers, underscores and hyphens allowed.
+                </p>
               </div>
 
               <div>
@@ -96,6 +102,9 @@ export function SignupPage() {
                   className="mt-1"
                   placeholder="you@example.com"
                 />
+                <p className="mt-1 text-xs text-black/55">
+                  We'll send a verification link to this email.
+                </p>
               </div>
 
               <div>
@@ -111,7 +120,7 @@ export function SignupPage() {
                   placeholder="••••••••"
                 />
                 <p className="mt-2 text-xs leading-relaxed text-black/55">
-                  Must be 8+ characters, include uppercase, lowercase, number and special character. No spaces.
+                  Must be 8+ characters, include uppercase, lowercase, number and special character (@#$%^&+=!). No spaces.
                 </p>
               </div>
 
