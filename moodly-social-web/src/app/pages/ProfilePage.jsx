@@ -16,6 +16,7 @@ export function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const [form, setForm] = useState({ firstName: "", lastName: "", bio: "", birthDate: "" });
 
@@ -53,19 +54,7 @@ export function ProfilePage() {
   async function onSave() {
     setSaving(true);
     setError(null);
-
-    if (form.birthDate) {
-      const date = new Date(form.birthDate);
-      const minDate = new Date("1900-01-01");
-      const maxDate = new Date();
-      maxDate.setDate(maxDate.getDate() - 1);
-
-      if (isNaN(date.getTime()) || date < minDate || date > maxDate) {
-        setError("Birth date must be a valid date between 1900 and today.");
-        setSaving(false);
-        return;
-      }
-    }
+    setSuccess(null);
 
     try {
       const updated = await updateMyProfile({
@@ -75,6 +64,8 @@ export function ProfilePage() {
         birthDate: form.birthDate || null,
       });
       setProfile(updated);
+      setSuccess("Your profile has been successfully updated!");
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       let parsed = err?.details;
       if (!parsed || typeof parsed === "string") {
@@ -166,6 +157,12 @@ export function ProfilePage() {
           </div>
         )}
 
+        {success && (
+          <div className="rounded-2xl border border-green-300 bg-green-50/95 px-4 py-3 text-sm text-green-800">
+            {success}
+          </div>
+        )}
+
         <Card className="glass-hover">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -235,8 +232,6 @@ export function ProfilePage() {
               <label className="field-label">Birth date</label>
               <Input
                 type="date"
-                min="1900-01-01"
-                max={new Date(Date.now() - 86400000).toISOString().split("T")[0]}
                 value={form.birthDate || ""}
                 onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
                 className="mt-1"
