@@ -20,18 +20,11 @@ app.use((req, res, next) => {
 // -------------- Backend proxy --------------
 // Proxy ALL API-like requests to backend
 app.use(
-  [
-    "/auth",
-    "/profile",
-    "/posts",
-    "/account",
-    "/admin",
-    "/media",
-  ],
+  ["/auth", "/profile", "/posts", "/account", "/admin", "/media"],
   createProxyMiddleware({
     target: "http://backend:8080",
     changeOrigin: true,
-  })
+  }),
 );
 
 // -------------- Serve frontend --------------
@@ -44,7 +37,7 @@ app.use((req, res) => {
 });
 
 // -------------- Start server --------------
-const PORT = 5000;
+const PORT = 8081;
 app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Gateway running on port ${PORT}`)
+  console.log(`Gateway running on port ${PORT}`),
 );
