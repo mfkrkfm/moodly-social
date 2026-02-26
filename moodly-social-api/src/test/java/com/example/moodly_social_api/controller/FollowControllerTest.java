@@ -41,6 +41,7 @@ class FollowControllerTest {
     }
 
     @Test
+    /// Test: Following another user successfully.
     void follow_shouldReturnFollowResponse() throws Exception {
         Long userId = 1L;
         String targetUsername = "targetuser";
@@ -51,7 +52,7 @@ class FollowControllerTest {
         when(authentication.getName()).thenReturn(userId.toString());
         when(publicProfileService.follow(userId, targetUsername)).thenReturn(response);
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.following").value(true))
@@ -61,6 +62,7 @@ class FollowControllerTest {
     }
 
     @Test
+    /// Test: Attempting to follow a non-existing user should return a 404 Not Found status.
     void follow_withNonExistingUser_shouldReturnNotFound() throws Exception {
         Long userId = 1L;
         String targetUsername = "nonexistent";
@@ -69,12 +71,13 @@ class FollowControllerTest {
         when(publicProfileService.follow(userId, targetUsername))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    /// Test: Attempting to follow a user that is already being followed should return a 409 Conflict status.
     void follow_alreadyFollowing_shouldReturnConflict() throws Exception {
         Long userId = 1L;
         String targetUsername = "targetuser";
@@ -83,12 +86,13 @@ class FollowControllerTest {
         when(publicProfileService.follow(userId, targetUsername))
                 .thenThrow(new CustomException("Already following", HttpStatus.CONFLICT));
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isConflict());
     }
 
     @Test
+    /// Test: Attempting to follow oneself should return a 400 Bad Request status.
     void follow_selfFollow_shouldReturnBadRequest() throws Exception {
         Long userId = 1L;
         String targetUsername = "myusername";
@@ -97,23 +101,25 @@ class FollowControllerTest {
         when(publicProfileService.follow(userId, targetUsername))
                 .thenThrow(new CustomException("Cannot follow yourself", HttpStatus.BAD_REQUEST));
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
+    /// Test: Attempting to follow with an invalid authentication token should return a 401 Unauthorized status.
     void follow_withInvalidToken_shouldThrowException() throws Exception {
         String targetUsername = "targetuser";
 
         when(authentication.getName()).thenReturn("invalid");
 
-        mockMvc.perform(post("/{username}/followers", targetUsername)
+        mockMvc.perform(post("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
+    /// Test: Unfollowing a user successfully.
     void unfollow_shouldReturnFollowResponse() throws Exception {
         Long userId = 1L;
         String targetUsername = "targetuser";
@@ -124,7 +130,7 @@ class FollowControllerTest {
         when(authentication.getName()).thenReturn(userId.toString());
         when(publicProfileService.unfollow(userId, targetUsername)).thenReturn(response);
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.following").value(false))
@@ -134,6 +140,7 @@ class FollowControllerTest {
     }
 
     @Test
+    /// Test: Attempting to unfollow a non-existing user should return a 404 Not Found status.
     void unfollow_withNonExistingUser_shouldReturnNotFound() throws Exception {
         Long userId = 1L;
         String targetUsername = "nonexistent";
@@ -142,12 +149,13 @@ class FollowControllerTest {
         when(publicProfileService.unfollow(userId, targetUsername))
                 .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    /// Test: Attempting to unfollow a user that is not currently being followed should return a 409 Conflict status.
     void unfollow_notFollowing_shouldReturnConflict() throws Exception {
         Long userId = 1L;
         String targetUsername = "targetuser";
@@ -156,18 +164,19 @@ class FollowControllerTest {
         when(publicProfileService.unfollow(userId, targetUsername))
                 .thenThrow(new CustomException("Not following", HttpStatus.CONFLICT));
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isConflict());
     }
 
     @Test
+    /// Test: Attempting to unfollow with an invalid authentication token should return a 401 Unauthorized status.
     void unfollow_withInvalidToken_shouldThrowException() throws Exception {
         String targetUsername = "targetuser";
 
         when(authentication.getName()).thenReturn("invalid");
 
-        mockMvc.perform(delete("/{username}/followers", targetUsername)
+        mockMvc.perform(delete("/users/{username}/followers", targetUsername)
                         .principal(authentication))
                 .andExpect(status().isUnauthorized());
     }

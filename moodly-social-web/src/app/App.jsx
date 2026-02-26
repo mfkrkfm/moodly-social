@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { RequireAuth, RedirectIfAuth } from "./routes/auth";
 
 import { LoginPage } from "./pages/LoginPage";
@@ -14,119 +14,135 @@ import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
 import { PostPage } from "./pages/PostPage";
 
+import { NotFoundPage } from "./pages/errors/NotFoundPage";
+import { ErrorPage } from "./pages/errors/ErrorPage";
+import { ErrorBoundary } from "./pages/errors/ErrorBoundary";
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/feed" replace />} />
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<Navigate to="/feed" replace />}
+          />
 
-        <Route
-          path="/login"
-          element={
-            <RedirectIfAuth>
-              <LoginPage />
-            </RedirectIfAuth>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <RedirectIfAuth>
-              <SignupPage />
-            </RedirectIfAuth>
-          }
-        />
+          <Route
+            path="/login"
+            element={
+              <RedirectIfAuth>
+                <LoginPage />
+              </RedirectIfAuth>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <RedirectIfAuth>
+                <SignupPage />
+              </RedirectIfAuth>
+            }
+          />
 
-        <Route
-          path="/feed"
-          element={
-            <RequireAuth>
-              <FeedPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <RequireAuth>
-              <ProfilePage />
-            </RequireAuth>
-          }
-        />
+          <Route
+            path="/feed"
+            element={
+              <RequireAuth>
+                <FeedPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <RequireAuth>
+                <ProfilePage />
+              </RequireAuth>
+            }
+          />
 
-        {/* NEW: account */}
-        <Route
-          path="/account"
-          element={
-            <RequireAuth>
-              <AccountPage />
-            </RequireAuth>
-          }
-        />
+          <Route
+            path="/account"
+            element={
+              <RequireAuth>
+                <AccountPage />
+              </RequireAuth>
+            }
+          />
 
-        {/* NEW: public profile area (but still requires auth in your app) */}
+          <Route
+            path="/:username"
+            element={
+              <RequireAuth>
+                <PublicProfilePage />
+              </RequireAuth>
+            }
+          />
         <Route
-          path="/u/:username"
-          element={
-            <RequireAuth>
-              <PublicProfilePage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/u/:username/followers"
+          path="/:username/followers"
           element={
             <RequireAuth>
               <FollowersPage />
             </RequireAuth>
           }
-        />
-        <Route
-          path="/u/:username/following"
-          element={
-            <RequireAuth>
-              <FollowingPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/u/:username/posts/:postId"
-          element={
-            <RequireAuth>
-              <PublicPostPage />
-            </RequireAuth>
-          }
-        />
+          />
+          <Route
+            path="/:username/following"
+            element={
+              <RequireAuth>
+                <FollowingPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/:username/posts/:postId"
+            element={
+              <RequireAuth>
+                <PublicPostPage />
+              </RequireAuth>
+            }
+          />
 
-        {/* NEW: admin */}
-        <Route
-          path="/admin/users"
-          element={
-            <RequireAuth>
-              <AdminUsersPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/admin/users/:id"
-          element={
-            <RequireAuth>
-              <AdminUserDetailPage />
-            </RequireAuth>
-          }
-        />
+          <Route
+            path="/admin/users"
+            element={
+              <RequireAuth>
+                <AdminUsersPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users/:id"
+            element={
+              <RequireAuth>
+                <AdminUserDetailPage />
+              </RequireAuth>
+            }
+          />
 
-        <Route
-          path="/posts/:postId"
-          element={
-            <RequireAuth>
-              <PostPage />
-            </RequireAuth>
-          }
-        />
+          <Route
+            path="/posts/:postId"
+            element={
+              <RequireAuth>
+                <PostPage />
+              </RequireAuth>
+            }
+          />
 
-        <Route path="*" element={<Navigate to="/feed" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/feed" replace />} />
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="/error" element={<ErrorPage code={500} />} />
+          <Route path="/error/:code" element={<ErrorPageByCode />} />
+          <Route path="*" element={<NotFoundPage />} />      
+         </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
+
+function ErrorPageByCode() {
+  const { code } = useParams();
+  return <ErrorPage code={Number(code)} />;
+}
+

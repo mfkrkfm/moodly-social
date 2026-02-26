@@ -47,6 +47,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Successful login with valid credentials, returning a JWT token and user details.
     void login_shouldReturnToken() throws Exception {
         LoginRequest request = new LoginRequest();
         request.setUsername("testuser");
@@ -78,6 +79,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Failed login with invalid credentials, returning an appropriate error message and status code.
     void login_withInvalidCredentials_shouldReturnUnauthorized() throws Exception {
         LoginRequest request = new LoginRequest();
         request.setUsername("testuser");
@@ -93,6 +95,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Login with missing or invalid fields (empty username or password) should return a validation error.
     void login_withEmptyUsername_shouldReturnBadRequest() throws Exception {
         LoginRequest request = new LoginRequest();
         request.setUsername("");
@@ -107,6 +110,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Login with empty password should return a validation error.
     void login_withEmptyPassword_shouldReturnBadRequest() throws Exception {
         LoginRequest request = new LoginRequest();
         request.setUsername("testuser");
@@ -121,6 +125,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Login with non-existing user should return an unauthorized error.
     void login_withNonExistingUser_shouldReturnUnauthorized() throws Exception {
         LoginRequest request = new LoginRequest();
         request.setUsername("nonexistent");
@@ -136,6 +141,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Successful signup with valid data returning a JWT token and user details.
     void signup_shouldReturnToken() throws Exception {
         SignupRequest request = new SignupRequest();
         request.setUsername("newuser");
@@ -166,6 +172,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Signup with existing username should return a conflict error.
     void signup_withExistingUsername_shouldReturnConflict() throws Exception {
         SignupRequest request = new SignupRequest();
         request.setUsername("existinguser");
@@ -182,6 +189,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Signup with existing email should return a conflict error.
     void signup_withExistingEmail_shouldReturnConflict() throws Exception {
         SignupRequest request = new SignupRequest();
         request.setUsername("newuser");
@@ -198,6 +206,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Signup with invalid email format should return a validation error.
     void signup_withInvalidEmail_shouldReturnBadRequest() throws Exception {
         SignupRequest request = new SignupRequest();
         request.setUsername("newuser");
@@ -213,6 +222,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Signup with short password should return a validation error.
     void signup_withShortPassword_shouldReturnBadRequest() throws Exception {
         SignupRequest request = new SignupRequest();
         request.setUsername("newuser");
@@ -228,6 +238,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Signup with empty username should return a validation error.
     void signup_withEmptyUsername_shouldReturnBadRequest() throws Exception {
         SignupRequest request = new SignupRequest();
         request.setUsername("");
@@ -243,6 +254,7 @@ class AuthControllerTest {
     }
 
     @Test
+    /// Test: Signup with empty email should return a validation error.
     void signup_withMissingFields_shouldReturnBadRequest() throws Exception {
         SignupRequest request = new SignupRequest();
 

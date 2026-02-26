@@ -49,6 +49,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Retrieving list of all users in the system.
     void getAllUsers_shouldReturnListOfUsers() throws Exception {
         AdminUserResponse user1 = new AdminUserResponse();
         user1.setId(1L);
@@ -76,6 +77,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    ///Test: Returns empty list when no users exist.
     void getAllUsers_withNoUsers_shouldReturnEmptyList() throws Exception {
         when(adminUserService.getAllUsers()).thenReturn(Collections.emptyList());
 
@@ -85,6 +87,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Retrieving a specific user by ID.
     void getUserById_shouldReturnUser() throws Exception {
         Long userId = 1L;
         AdminUserResponse user = new AdminUserResponse();
@@ -105,6 +108,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    ///Test: Getting a non-existing user returns 404 error.
     void getUserById_withNonExistingUser_shouldReturnNotFound() throws Exception {
         Long userId = 999L;
 
@@ -116,6 +120,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Updating a users roles.
     void updateUserRoles_shouldReturnUpdatedUser() throws Exception {
         Long userId = 1L;
         UpdateUserRolesRequest request = new UpdateUserRolesRequest();
@@ -140,6 +145,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Updating a users roles with empty role list returns 400 error.
     void updateUserRoles_withEmptyRoles_shouldReturnBadRequest() throws Exception {
         Long userId = 1L;
         UpdateUserRolesRequest request = new UpdateUserRolesRequest();
@@ -154,6 +160,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Updating a non-existing user returns 404 error.
     void updateUserRoles_withNonExistingUser_shouldReturnNotFound() throws Exception {
         Long userId = 999L;
         UpdateUserRolesRequest request = new UpdateUserRolesRequest();
@@ -169,6 +176,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Deleting a user by ID.
     void deleteUser_shouldReturnNoContent() throws Exception {
         Long userId = 1L;
 
@@ -181,6 +189,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Deleting a non-existing user returns 404 error.
     void deleteUser_withNonExistingUser_shouldReturnNotFound() throws Exception {
         Long userId = 999L;
 
@@ -192,6 +201,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Deleting the last admin user returns 400 error.
     void deleteUser_withLastAdmin_shouldReturnBadRequest() throws Exception {
         Long userId = 1L;
 
@@ -203,6 +213,7 @@ class AdminUserControllerTest {
     }
 
     @Test
+    /// Test: Deleting a user with associated data (posts, comments) should delete user and data.
     void deleteUser_withAssociatedData_shouldDeleteUserAndData() throws Exception {
         Long userId = 1L;
 

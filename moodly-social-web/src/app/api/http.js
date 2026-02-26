@@ -1,7 +1,7 @@
 import { clearAuth, getAuth } from "./authStore.js";
 
 export const API_BASE_URL =
-  (import.meta?.env && import.meta.env.VITE_API_BASE_URL) || "http://localhost:8080";
+  import.meta.env?.VITE_API_BASE_URL || "";
 
 function buildUrl(path) {
   if (path.startsWith("http")) return path;
