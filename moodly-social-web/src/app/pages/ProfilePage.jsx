@@ -1,24 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture } from "../api/profileApi.js";
+import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture, getPublicPosts } from "../api/profileApi.js";
 import { getSession } from "../api/authStore.js";
-import { HttpError } from "../api/http.js";
-import { moodOptions } from "../constants/moods.js";
+import { getAuthorAuraColor } from "../constants/moods.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import { Textarea } from "../components/ui/textarea.jsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select.jsx";
 
 export function ProfilePage() {
   const session = useMemo(() => getSession(), []);
   const [profile, setProfile] = useState(null);
+  const [myPosts, setMyPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  const [form, setForm] = useState({ firstName: "", lastName: "", bio: "", birthDate: "", mood: "CALM" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", bio: "", birthDate: "" });
 
   async function load() {
     setError(null);
@@ -31,8 +30,13 @@ export function ProfilePage() {
         lastName: p.lastName || "",
         bio: p.bio || "",
         birthDate: p.birthDate || "",
-        mood: p.mood || "CALM",
       });
+      try {
+        const posts = await getPublicPosts(p.username);
+        setMyPosts(Array.isArray(posts) ? posts : []);
+      } catch {
+        setMyPosts([]);
+      }
     } catch (err) {
       setError(err?.message || "Failed to load profile");
     } finally {
@@ -44,21 +48,61 @@ export function ProfilePage() {
     load();
   }, []);
 
+  const dominantMoodColor = useMemo(() => getAuthorAuraColor(myPosts.map(p => p.mood)), [myPosts]);
+
   async function onSave() {
     setSaving(true);
     setError(null);
+
+    if (form.birthDate) {
+      const date = new Date(form.birthDate);
+      const minDate = new Date("1900-01-01");
+      const maxDate = new Date();
+      maxDate.setDate(maxDate.getDate() - 1);
+
+      if (isNaN(date.getTime()) || date < minDate || date > maxDate) {
+        setError("Birth date must be a valid date between 1900 and today.");
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
       const updated = await updateMyProfile({
         firstName: form.firstName || null,
         lastName: form.lastName || null,
         bio: form.bio || null,
         birthDate: form.birthDate || null,
-        mood: form.mood,
       });
       setProfile(updated);
     } catch (err) {
-      if (err instanceof HttpError && err.details?.errors) setError(Object.values(err.details.errors).join("\n"));
-      else setError(err?.message || "Failed to update profile");
+      let parsed = err?.details;
+      if (!parsed || typeof parsed === "string") {
+        try { parsed = JSON.parse(err?.message || ""); } catch { parsed = null; }
+      }
+      if (!parsed || typeof parsed === "string") {
+        try { parsed = JSON.parse(String(err?.details || "")); } catch { parsed = null; }
+      }
+
+      const validationErrors = parsed?.errors;
+      if (validationErrors && typeof validationErrors === "object") {
+        const fieldMessages = {
+          firstName: "First name is invalid",
+          lastName: "Last name is invalid",
+          bio: "Bio is invalid",
+          birthDate: "Birth date must be in the past",
+        };
+        const msgs = Object.keys(validationErrors)
+          .map((field) => fieldMessages[field] || `${field} is invalid`);
+        setError(msgs.join("\n"));
+      } else {
+        const msg = err?.message || "Failed to update profile";
+        if (msg.startsWith("{") || /[^\x00-\x7F]/.test(msg)) {
+          setError("Failed to update profile. Please check your input.");
+        } else {
+          setError(msg);
+        }
+      }
     } finally {
       setSaving(false);
     }
@@ -125,7 +169,10 @@ export function ProfilePage() {
         <Card className="glass-hover">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
+              <div
+                className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center ring-3 ring-offset-2"
+                style={{ '--tw-ring-color': dominantMoodColor || '#9CA3AF' }}
+              >
                 {profile?.authorPicture?.url ? (
                   <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
@@ -184,33 +231,16 @@ export function ProfilePage() {
               <p className="mt-1 text-xs text-black/50">{form.bio.length}/500</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="field-label">Birth date</label>
-                <Input
-                  type="date"
-                  value={form.birthDate || ""}
-                  onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label className="field-label">Mood</label>
-                <div className="mt-1">
-                  <Select value={form.mood} onValueChange={(v) => setForm((f) => ({ ...f, mood: v }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select mood" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {moodOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+            <div>
+              <label className="field-label">Birth date</label>
+              <Input
+                type="date"
+                min="1900-01-01"
+                max={new Date(Date.now() - 86400000).toISOString().split("T")[0]}
+                value={form.birthDate || ""}
+                onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
+                className="mt-1"
+              />
             </div>
 
             <Button
