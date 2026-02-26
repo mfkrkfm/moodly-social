@@ -19,8 +19,47 @@ export class HttpError extends Error {
 
 function pickErrorMessage(body, fallback) {
   if (!body) return fallback;
-  if (typeof body === "string") return body;
-  return body.detail || body.title || body.error || body.message || fallback;
+
+  // If body is a JSON string, try to parse it into an object so we can
+  // extract structured validation messages instead of returning a raw JSON blob.
+  let payload = body;
+  if (typeof body === "string") {
+    const trimmed = body.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        payload = JSON.parse(trimmed);
+      } catch (e) {
+        // Not valid JSON, return raw string
+        return body;
+      }
+    } else {
+      return body;
+    }
+  }
+
+  // Now payload is either the original object or the parsed JSON object.
+  if (payload && typeof payload === "object") {
+    if (payload.errors && typeof payload.errors === "object") {
+      try {
+        const msgs = [];
+        for (const val of Object.values(payload.errors)) {
+          if (!val) continue;
+          if (Array.isArray(val)) {
+            msgs.push(...val.map((v) => String(v).trim()).filter(Boolean));
+          } else {
+            msgs.push(String(val).trim());
+          }
+        }
+        if (msgs.length) return msgs.join("; ");
+      } catch (e) {
+        // fall through to other fields
+      }
+    }
+
+    return payload.detail || payload.title || payload.error || payload.message || fallback;
+  }
+
+  return fallback;
 }
 
 export async function http(path, opts = {}) {
@@ -49,7 +88,20 @@ export async function http(path, opts = {}) {
 
   const contentType = res.headers.get("content-type") || "";
   const isJson = contentType.includes("application/json");
-  const body = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
+  let body = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
+
+  // If server returned a JSON payload but didn't set content-type, try to parse the text
+  if (!isJson && typeof body === "string") {
+    const trimmed = body.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        body = parsed;
+      } catch (e) {
+        // leave body as text
+      }
+    }
+  }
 
   if (!res.ok) {
     const message = pickErrorMessage(body, res.statusText || "Request failed");
