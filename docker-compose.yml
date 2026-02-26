@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     build: ./moodly-social-api
@@ -8,14 +6,13 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - LOGGING_FILE_PATH=/app/logs
     volumes:
       - ./logs:/app/logs
 
-  frontend:
+  gateway:
     build: ./moodly-social-web
-    container_name: moodly-frontend
+    container_name: moodly-gateway
     ports:
-      - "3000:80"
+      - "8081:8081" # Gateway serves both frontend + API proxy
     depends_on:
       - backend
