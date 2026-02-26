@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAccount, updateAccount } from "../api/accountApi.js";
-import { getSession, clearAuth } from "../api/authStore.js";
+import { getSession, clearAuth, saveAuthSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
 import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
@@ -33,7 +33,7 @@ function formatProblemMessage(problem, fallback) {
 
 export function AccountPage() {
   const navigate = useNavigate();
-  const session = useMemo(() => getSession(), []);
+  const [sessionState, setSessionState] = useState(() => getSession());
   const [account, setAccount] = useState(null);
   const [form, setForm] = useState({ username: "", email: "", newPassword: "" });
   const [loading, setLoading] = useState(true);
@@ -93,6 +93,16 @@ export function AccountPage() {
       });
       setAccount(updated);
       setForm((f) => ({ ...f, newPassword: "" }));
+
+      // Update session in localStorage with new username and email
+      const newSession = {
+        ...getSession(),
+        username: updated.username,
+        email: updated.email,
+      };
+      saveAuthSession(newSession);
+      setSessionState(newSession);
+
       setSuccess("Account updated successfully!");
       setTimeout(() => setSuccess(null), 3000);
     } catch (e) {
@@ -153,7 +163,7 @@ export function AccountPage() {
         <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <div>
             <h1 className="text-lg font-semibold text-black/90">Account</h1>
-            <p className="text-xs text-black/55">@{session?.username || account?.username}</p>
+            <p className="text-xs text-black/55">@{sessionState?.username || account?.username}</p>
           </div>
           <Link
             to="/feed"
