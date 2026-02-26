@@ -24,6 +24,8 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Lob
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     private boolean isEdited = false;

@@ -1,0 +1,104 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { signin } from "../api/authApi.js";
+import { saveAuthSession } from "../api/authStore.js";
+import { HttpError } from "../api/http.js";
+import { Card, CardContent } from "../components/ui/card.jsx";
+import { Button } from "../components/ui/button.jsx";
+import { Input } from "../components/ui/input.jsx";
+import { Logo } from "../components/Logo.jsx";
+
+export function LoginPage() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const form = new FormData(e.target);
+    const payload = {
+      username: String(form.get("username") || "").trim(),
+      password: String(form.get("password") || ""),
+    };
+
+    try {
+      const res = await signin(payload);
+      saveAuthSession(res);
+      navigate("/feed");
+    } catch (err) {
+      if (err instanceof HttpError && err.details?.errors) {
+        setError(Object.values(err.details.errors).join("\n"));
+      } else {
+        setError(err?.message || "Sign-in failed");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="mb-8 flex justify-center">
+          <Logo />
+        </div>
+
+        <Card className="glass">
+          <CardContent className="p-7">
+            <h2 className="mb-1 text-xl font-semibold text-black/90">Welcome back</h2>
+            <p className="mb-6 text-sm text-black/55">Sign in to continue your mindful feed.</p>
+
+            {error && (
+              <div className="mb-4 rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm text-black/60">Username</label>
+                <Input
+                  name="username"
+                  autoComplete="username"
+                  required
+                  className="mt-1"
+                  placeholder="yourname"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-black/60">Password</label>
+                <Input
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className="mt-1"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-10 w-full rounded-xl bg-black text-white transition hover:bg-black/90 disabled:bg-black/10 disabled:text-black/40"
+              >
+                {loading ? "Signing in…" : "Sign in"}
+              </Button>
+
+              <p className="text-center text-sm text-black/55">
+                New here?{" "}
+                <Link to="/signup" className="font-medium text-black/85 hover:underline">
+                  Create an account
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
