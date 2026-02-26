@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture } from "../api/profileApi.js";
+import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture, getPublicPosts } from "../api/profileApi.js";
 import { getSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
+import { getAuthorAuraColor } from "../constants/moods.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
@@ -12,6 +13,7 @@ import { Textarea } from "../components/ui/textarea.jsx";
 export function ProfilePage() {
   const session = useMemo(() => getSession(), []);
   const [profile, setProfile] = useState(null);
+  const [myPosts, setMyPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -30,6 +32,12 @@ export function ProfilePage() {
         bio: p.bio || "",
         birthDate: p.birthDate || "",
       });
+      try {
+        const posts = await getPublicPosts(p.username);
+        setMyPosts(Array.isArray(posts) ? posts : []);
+      } catch {
+        setMyPosts([]);
+      }
     } catch (err) {
       setError(err?.message || "Failed to load profile");
     } finally {
@@ -40,6 +48,8 @@ export function ProfilePage() {
   useEffect(() => {
     load();
   }, []);
+
+  const dominantMoodColor = useMemo(() => getAuthorAuraColor(myPosts.map(p => p.mood)), [myPosts]);
 
   async function onSave() {
     setSaving(true);
@@ -121,7 +131,10 @@ export function ProfilePage() {
         <Card className="glass-hover">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
+              <div
+                className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center ring-3 ring-offset-2"
+                style={{ '--tw-ring-color': dominantMoodColor || '#9CA3AF' }}
+              >
                 {profile?.authorPicture?.url ? (
                   <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
