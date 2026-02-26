@@ -27,6 +27,8 @@ public class Profile {
 
     private String lastName;
 
+    @Lob
+    @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
 
     private LocalDate birthDate;
