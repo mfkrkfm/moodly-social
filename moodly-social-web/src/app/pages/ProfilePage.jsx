@@ -1,26 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture } from "../api/profileApi.js";
-import { getPublicPosts } from "../api/profileApi.js";
 import { getSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
-import { moodOptions, getAuthorAuraColor } from "../constants/moods.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import { Textarea } from "../components/ui/textarea.jsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select.jsx";
 
 export function ProfilePage() {
   const session = useMemo(() => getSession(), []);
   const [profile, setProfile] = useState(null);
-  const [myPosts, setMyPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  const [form, setForm] = useState({ firstName: "", lastName: "", bio: "", birthDate: "", mood: "CALM" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", bio: "", birthDate: "" });
 
   async function load() {
     setError(null);
@@ -33,15 +29,7 @@ export function ProfilePage() {
         lastName: p.lastName || "",
         bio: p.bio || "",
         birthDate: p.birthDate || "",
-        mood: p.mood || "CALM",
       });
-      // Load posts to compute dominant mood color
-      try {
-        const posts = await getPublicPosts(p.username);
-        setMyPosts(Array.isArray(posts) ? posts : []);
-      } catch {
-        setMyPosts([]);
-      }
     } catch (err) {
       setError(err?.message || "Failed to load profile");
     } finally {
@@ -53,8 +41,6 @@ export function ProfilePage() {
     load();
   }, []);
 
-  const dominantMoodColor = useMemo(() => getAuthorAuraColor(myPosts.map(p => p.mood)), [myPosts]);
-
   async function onSave() {
     setSaving(true);
     setError(null);
@@ -64,7 +50,6 @@ export function ProfilePage() {
         lastName: form.lastName || null,
         bio: form.bio || null,
         birthDate: form.birthDate || null,
-        mood: form.mood,
       });
       setProfile(updated);
     } catch (err) {
@@ -136,10 +121,7 @@ export function ProfilePage() {
         <Card className="glass-hover">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div
-                className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center ring-3 ring-offset-2"
-                style={{ '--tw-ring-color': dominantMoodColor }}
-              >
+              <div className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
                 {profile?.authorPicture?.url ? (
                   <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
@@ -198,33 +180,14 @@ export function ProfilePage() {
               <p className="mt-1 text-xs text-black/50">{form.bio.length}/500</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="field-label">Birth date</label>
-                <Input
-                  type="date"
-                  value={form.birthDate || ""}
-                  onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label className="field-label">Mood</label>
-                <div className="mt-1">
-                  <Select value={form.mood} onValueChange={(v) => setForm((f) => ({ ...f, mood: v }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select mood" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {moodOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+            <div>
+              <label className="field-label">Birth date</label>
+              <Input
+                type="date"
+                value={form.birthDate || ""}
+                onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
+                className="mt-1"
+              />
             </div>
 
             <Button
