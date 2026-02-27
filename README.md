@@ -90,6 +90,21 @@ It provides secure authentication using **JWT** and supports core social feature
 
 ---
 
+### Before Running
+create .env.docker in root directory
+example values:
+`DATABASE_URL=jdbc:mysql://mysql:3306/moodly?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+DATABASE_USER=moodly_user
+DATABASE_PASSWORD=password
+MYSQL_USER=moodly_user
+MYSQL_PASSWORD=password
+MYSQL_ROOT_PASSWORD=root
+JWT_SECRET=prodSecretKeyForJwt123456789012345678901234567890`
+would result in default admin:
+login: admin
+password: Admin123!
+
+
+### Run in production mode
 `docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
 
-`docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build`
