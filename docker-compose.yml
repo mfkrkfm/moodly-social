@@ -1,14 +1,15 @@
-version: "3.8"
+version: "3.9"
 
 services:
+
   mysql:
     image: mysql:8.0
     container_name: moodly-mysql
-    restart: always
+    profiles: ["prod"]
     environment:
       MYSQL_DATABASE: moodly
-      MYSQL_USER: moodly_user
-      MYSQL_PASSWORD: password
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3307:3306"
@@ -21,13 +22,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DATABASE_URL: jdbc:mysql://mysql:3306/moodly?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      DATABASE_USER: moodly_user
-      DATABASE_PASSWORD: password
-      JWT_SECRET: prodSecretKeyForJwt123456789012345678901234567890
-    depends_on:
-      - mysql
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      DATABASE_URL: ${DATABASE_URL:-}
+      DATABASE_USER: ${DATABASE_USER:-}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-}
+      JWT_SECRET: ${JWT_SECRET:-devSecretKeyForJwt123456789012345678901234567890}
     volumes:
       - ./logs:/app/logs
 
