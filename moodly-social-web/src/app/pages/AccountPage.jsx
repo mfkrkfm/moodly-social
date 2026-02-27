@@ -153,7 +153,7 @@ export function AccountPage() {
         <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <div>
             <h1 className="text-lg font-semibold text-black/90">Account</h1>
-            <p className="text-xs text-black/55">@{session?.username || account?.username}</p>
+            <p className="text-xs text-black/55">@{form.username || account?.username}</p>
           </div>
           <Link
             to="/feed"
