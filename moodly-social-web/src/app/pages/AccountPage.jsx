@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAccount, updateAccount } from "../api/accountApi.js";
-import { getSession, clearAuth } from "../api/authStore.js";
+import { getSession, clearAuth, patchSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
 import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
@@ -116,6 +116,10 @@ export function AccountPage() {
         username,
         email,
         newPassword: form.newPassword ? form.newPassword : undefined,
+      });
+      patchSession({
+        username: updated?.username || username,
+        email: updated?.email || email,
       });
       setAccount(updated);
       setForm((f) => ({ ...f, newPassword: "" }));

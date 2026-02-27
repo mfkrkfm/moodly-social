@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
-import { getPublicProfile, getPublicPosts, follow, unfollow } from "../api/profileApi.js";
+import {
+  getFollowers,
+  getPublicProfile,
+  getPublicPosts,
+  follow,
+  unfollow,
+} from "../api/profileApi.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { PostCard } from "../components/PostCard.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
@@ -13,7 +19,7 @@ import { getAuthorAuraColor } from "../constants/moods.js";
 
 export function PublicProfilePage() {
   const { username } = useParams();
-  const session = useMemo(() => getSession(), []);
+  const session = getSession();
   const me = session?.username || null;
 
   const [profile, setProfile] = useState(null);
@@ -26,8 +32,21 @@ export function PublicProfilePage() {
     setLoading(true);
     setError(null);
     try {
-      const [p, list] = await Promise.all([getPublicProfile(username), getPublicPosts(username)]);
-      setProfile(p);
+      const [p, list] = await Promise.all([
+        getPublicProfile(username),
+        getPublicPosts(username),
+      ]);
+      let following = typeof p?.following === "boolean" ? p.following : null;
+      if (following === null && me && p?.username && me !== p.username) {
+        const followers = await getFollowers(p.username);
+        following =
+          Array.isArray(followers) && followers.some((u) => u?.username === me);
+      }
+      const profileData = p && typeof p === "object" ? p : {};
+      setProfile({
+        ...profileData,
+        following: following ?? false,
+      });
       setPosts(Array.isArray(list) ? list : []);
     } catch (e) {
       setError(e?.message || "Failed to load profile");
@@ -38,9 +57,12 @@ export function PublicProfilePage() {
 
   useEffect(() => {
     load();
-  }, [username]);
+  }, [username, me]);
 
-  const dominantMoodColor = useMemo(() => getAuthorAuraColor(posts.map(p => p.mood)), [posts]);
+  const dominantMoodColor = useMemo(
+    () => getAuthorAuraColor(posts.map((p) => p.mood)),
+    [posts],
+  );
 
   async function onToggleFollow() {
     if (!profile?.username) return;
@@ -48,10 +70,21 @@ export function PublicProfilePage() {
     setError(null);
     try {
       // backend returns FollowResponse { targetUsername, following, followersCount }
-      const res = profile.following ? await unfollow(profile.username) : await follow(profile.username);
-      setProfile((p) => (p ? { ...p, following: res.following, followersCount: res.followersCount } : p));
+      const res = profile.following
+        ? await unfollow(profile.username)
+        : await follow(profile.username);
+      setProfile((p) =>
+        p
+          ? {
+              ...p,
+              following: res.following,
+              followersCount: res.followersCount,
+            }
+          : p,
+      );
     } catch (e) {
-      if (e instanceof HttpError && e.details?.errors) setError(Object.values(e.details.errors).join("\n"));
+      if (e instanceof HttpError && e.details?.errors)
+        setError(Object.values(e.details.errors).join("\n"));
       else setError(e?.message || "Failed to update follow");
     } finally {
       setBusy(false);
@@ -73,9 +106,12 @@ export function PublicProfilePage() {
       <header className="glass sticky top-0 z-20 rounded-none border-x-0 border-t-0">
         <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <div>
-            <h1 className="text-lg font-semibold text-black/90">@{profile?.username || username}</h1>
+            <h1 className="text-lg font-semibold text-black/90">
+              @{profile?.username || username}
+            </h1>
             <p className="text-xs text-black/55">
-              Followers {profile?.followersCount ?? 0} • Following {profile?.followingCount ?? 0}
+              Followers {profile?.followersCount ?? 0} • Following{" "}
+              {profile?.followingCount ?? 0}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -101,36 +137,54 @@ export function PublicProfilePage() {
             <div className="flex items-center gap-4">
               <div
                 className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center ring-3 ring-offset-2"
-                style={{ '--tw-ring-color': dominantMoodColor }}
+                style={{ "--tw-ring-color": dominantMoodColor }}
               >
                 {profile?.authorPicture?.url ? (
-                  <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
+                  <MediaImage
+                    url={profile.authorPicture.url}
+                    alt={profile.username}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span className="text-black/80 font-semibold text-xl">{(profile?.username || "?")[0]?.toUpperCase()}</span>
+                  <span className="text-black/80 font-semibold text-xl">
+                    {(profile?.username || "?")[0]?.toUpperCase()}
+                  </span>
                 )}
               </div>
 
               <div className="flex-1">
                 <p className="text-sm font-medium text-black/85">
-                  {(profile?.firstName || profile?.lastName)
+                  {profile?.firstName || profile?.lastName
                     ? `${profile?.firstName || ""} ${profile?.lastName || ""}`.trim()
                     : profile?.username}
                 </p>
-                {profile?.bio ? <p className="mt-1 text-sm text-black/65">{profile.bio}</p> : null}
+                {profile?.bio ? (
+                  <p className="mt-1 text-sm text-black/65">{profile.bio}</p>
+                ) : null}
               </div>
 
               {me && me !== profile?.username && (
-                <Button onClick={onToggleFollow} disabled={busy} className="control-pill">
+                <Button
+                  onClick={onToggleFollow}
+                  disabled={busy}
+                  className="control-pill"
+                >
                   {busy ? "…" : profile?.following ? "Unfollow" : "Follow"}
                 </Button>
               )}
             </div>
 
             <div className="mt-4 flex gap-2">
-              <Link to={`/u/${encodeURIComponent(username)}/followers`} className="control-pill">
+              <Link
+                to={`/u/${encodeURIComponent(username)}/followers`}
+                className="control-pill"
+              >
                 Followers
               </Link>
-              <Link to={`/u/${encodeURIComponent(username)}/following`} className="control-pill">
+              <Link
+                to={`/u/${encodeURIComponent(username)}/following`}
+                className="control-pill"
+              >
                 Following
               </Link>
             </div>
@@ -148,7 +202,11 @@ export function PublicProfilePage() {
                   className="block"
                 >
                   {/* Read-only: we reuse PostCard but don’t pass actions */}
-                  <PostCard post={p} currentUsername={me} authorMoodColor={dominantMoodColor} />
+                  <PostCard
+                    post={p}
+                    currentUsername={me}
+                    authorMoodColor={dominantMoodColor}
+                  />
                 </Link>
               </div>
             ))}
