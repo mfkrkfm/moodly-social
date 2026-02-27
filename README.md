@@ -93,13 +93,15 @@ It provides secure authentication using **JWT** and supports core social feature
 ### Before Running
 create .env.docker in root directory
 example values:
-`DATABASE_URL=jdbc:mysql://mysql:3306/moodly?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-DATABASE_USER=moodly_user
-DATABASE_PASSWORD=password
-MYSQL_USER=moodly_user
-MYSQL_PASSWORD=password
-MYSQL_ROOT_PASSWORD=root
-JWT_SECRET=prodSecretKeyForJwt123456789012345678901234567890`
+
+`DATABASE_URL=jdbc:mysql://mysql:3306/moodly?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC`<br>
+`DATABASE_USER=moodly_user`<br>
+`DATABASE_PASSWORD=password`<br>
+`MYSQL_USER=moodly_user`<br>
+`MYSQL_PASSWORD=password`<br>
+`MYSQL_ROOT_PASSWORD=root`<br>
+`JWT_SECRET=prodSecretKeyForJwt123456789012345678901234567890`<br>
+
 would result in default admin:
 login: admin
 password: Admin123!
