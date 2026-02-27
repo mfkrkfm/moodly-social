@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from "react-router-dom";
 import { RequireAuth, RedirectIfAuth } from "./routes/auth";
 
 import { LoginPage } from "./pages/LoginPage";
@@ -23,10 +29,7 @@ export default function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={<Navigate to="/feed" replace />}
-          />
+          <Route path="/" element={<Navigate to="/feed" replace />} />
 
           <Route
             path="/login"
@@ -79,13 +82,29 @@ export default function App() {
               </RequireAuth>
             }
           />
-        <Route
-          path="/:username/followers"
-          element={
-            <RequireAuth>
-              <FollowersPage />
-            </RequireAuth>
-          }
+          <Route
+            path="/u/:username"
+            element={
+              <RequireAuth>
+                <PublicProfilePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/:username/followers"
+            element={
+              <RequireAuth>
+                <FollowersPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/u/:username/followers"
+            element={
+              <RequireAuth>
+                <FollowersPage />
+              </RequireAuth>
+            }
           />
           <Route
             path="/:username/following"
@@ -96,7 +115,23 @@ export default function App() {
             }
           />
           <Route
+            path="/u/:username/following"
+            element={
+              <RequireAuth>
+                <FollowingPage />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/:username/posts/:postId"
+            element={
+              <RequireAuth>
+                <PublicPostPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/u/:username/posts/:postId"
             element={
               <RequireAuth>
                 <PublicPostPage />
@@ -134,8 +169,8 @@ export default function App() {
           <Route path="/404" element={<NotFoundPage />} />
           <Route path="/error" element={<ErrorPage code={500} />} />
           <Route path="/error/:code" element={<ErrorPageByCode />} />
-          <Route path="*" element={<NotFoundPage />} />      
-         </Routes>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </BrowserRouter>
     </ErrorBoundary>
   );
@@ -145,4 +180,3 @@ function ErrorPageByCode() {
   const { code } = useParams();
   return <ErrorPage code={Number(code)} />;
 }
-
