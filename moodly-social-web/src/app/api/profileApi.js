@@ -42,13 +42,19 @@ export function unfollow(username) {
 }
 
 export function getPublicPost(username, postId) {
-  return http(`/${encodeURIComponent(username)}/posts/${postId}`, { method: "GET" });
+  return http(`/users/${encodeURIComponent(username)}/posts/${postId}`, {
+    method: "GET",
+  });
 }
 
 export function getFollowers(username) {
-  return http(`/${encodeURIComponent(username)}/followers`, { method: "GET" });
+  return http(`/users/${encodeURIComponent(username)}/followers`, {
+    method: "GET",
+  });
 }
 
 export function getFollowing(username) {
-  return http(`/${encodeURIComponent(username)}/following`, { method: "GET" });
+  return http(`/users/${encodeURIComponent(username)}/following`, {
+    method: "GET",
+  });
 }
