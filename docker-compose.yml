@@ -4,8 +4,6 @@ services:
     container_name: moodly-backend
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
     volumes:
       - ./logs:/app/logs
 
@@ -13,6 +11,6 @@ services:
     build: ./moodly-social-web
     container_name: moodly-gateway
     ports:
-      - "8081:8081" # Gateway serves both frontend + API proxy
+      - "8081:8081"
     depends_on:
       - backend

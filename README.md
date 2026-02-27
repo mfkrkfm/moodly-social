@@ -89,3 +89,7 @@ It provides secure authentication using **JWT** and supports core social feature
 - UnitTests
 
 ---
+
+`docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
+
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build`
