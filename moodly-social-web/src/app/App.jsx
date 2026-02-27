@@ -5,7 +5,7 @@ import {
   Navigate,
   useParams,
 } from "react-router-dom";
-import { RequireAuth, RedirectIfAuth } from "./routes/auth";
+import { RequireAuth, RedirectIfAuth, RequireAdmin } from "./routes/auth";
 
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
@@ -142,17 +142,17 @@ export default function App() {
           <Route
             path="/admin/users"
             element={
-              <RequireAuth>
+              <RequireAdmin>
                 <AdminUsersPage />
-              </RequireAuth>
+              </RequireAdmin>
             }
           />
           <Route
             path="/admin/users/:id"
             element={
-              <RequireAuth>
+              <RequireAdmin>
                 <AdminUserDetailPage />
-              </RequireAuth>
+              </RequireAdmin>
             }
           />
 

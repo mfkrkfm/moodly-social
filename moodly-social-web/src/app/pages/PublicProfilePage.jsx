@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
 import {
@@ -9,6 +9,15 @@ import {
   follow,
   unfollow,
 } from "../api/profileApi.js";
+import {
+  addComment,
+  hydratePostsLikedByMe,
+  like,
+  listComments,
+  replyToComment,
+  unlike,
+  updateComment,
+} from "../api/postsApi.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { PostCard } from "../components/PostCard.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
@@ -19,6 +28,7 @@ import { getAuthorAuraColor } from "../constants/moods.js";
 
 export function PublicProfilePage() {
   const { username } = useParams();
+  const navigate = useNavigate();
   const session = getSession();
   const me = session?.username || null;
 
@@ -47,8 +57,16 @@ export function PublicProfilePage() {
         ...profileData,
         following: following ?? false,
       });
-      setPosts(Array.isArray(list) ? list : []);
+      const normalizedPosts = await hydratePostsLikedByMe(
+        Array.isArray(list) ? list : [],
+        me,
+      );
+      setPosts(normalizedPosts);
     } catch (e) {
+      if (e instanceof HttpError && e.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
       setError(e?.message || "Failed to load profile");
     } finally {
       setLoading(false);
@@ -57,12 +75,98 @@ export function PublicProfilePage() {
 
   useEffect(() => {
     load();
-  }, [username, me]);
+  }, [username, me, navigate]);
 
   const dominantMoodColor = useMemo(
     () => getAuthorAuraColor(posts.map((p) => p.mood)),
     [posts],
   );
+
+  function countComments(nodes) {
+    if (!Array.isArray(nodes)) return 0;
+    return nodes.reduce(
+      (total, node) => total + 1 + countComments(node.replies),
+      0,
+    );
+  }
+
+  async function refreshComments(postId) {
+    try {
+      const comments = await listComments(postId);
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? { ...p, comments, commentsCount: countComments(comments) }
+            : p,
+        ),
+      );
+      return comments;
+    } catch {
+      return [];
+    }
+  }
+
+  async function handleToggleLike(post) {
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p.id !== post.id) return p;
+        const liked = !p.likedByMe;
+        return {
+          ...p,
+          likedByMe: liked,
+          likesCount: Math.max(0, (p.likesCount || 0) + (liked ? 1 : -1)),
+        };
+      }),
+    );
+
+    try {
+      const res = post.likedByMe ? await unlike(post.id) : await like(post.id);
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id
+            ? { ...p, likedByMe: res.liked, likesCount: res.likesCount }
+            : p,
+        ),
+      );
+    } catch {
+      setPosts((prev) => prev.map((p) => (p.id === post.id ? post : p)));
+    }
+  }
+
+  function openPostFromCard(event, id) {
+    const interactive = event.target.closest(
+      "button,a,input,textarea,select,label,[role='button']",
+    );
+    if (interactive) return;
+    navigate(`/u/${encodeURIComponent(username)}/posts/${id}`);
+  }
+
+  async function handleAddComment(postId, content) {
+    try {
+      await addComment(postId, content);
+      await refreshComments(postId);
+    } catch (e) {
+      setError(e?.message || "Failed to add comment");
+    }
+  }
+
+  async function handleReplyComment(postId, parentCommentId, content) {
+    try {
+      await replyToComment(postId, parentCommentId, content);
+      await refreshComments(postId);
+    } catch (e) {
+      setError(e?.message || "Failed to reply");
+    }
+  }
+
+  async function handleEditComment(postId, commentId, content) {
+    try {
+      await updateComment(postId, commentId, content);
+      await refreshComments(postId);
+    } catch (e) {
+      setError(e?.message || "Failed to edit comment");
+    }
+  }
 
   async function onToggleFollow() {
     if (!profile?.username) return;
@@ -196,18 +300,21 @@ export function PublicProfilePage() {
         ) : (
           <div className="space-y-4 sm:space-y-5">
             {posts.map((p) => (
-              <div key={p.id}>
-                <Link
-                  to={`/u/${encodeURIComponent(username)}/posts/${p.id}`}
-                  className="block"
-                >
-                  {/* Read-only: we reuse PostCard but don’t pass actions */}
-                  <PostCard
-                    post={p}
-                    currentUsername={me}
-                    authorMoodColor={dominantMoodColor}
-                  />
-                </Link>
+              <div
+                key={p.id}
+                className="space-y-2"
+                onClick={(event) => openPostFromCard(event, p.id)}
+              >
+                <PostCard
+                  post={p}
+                  currentUsername={me}
+                  authorMoodColor={dominantMoodColor}
+                  onToggleLike={handleToggleLike}
+                  onLoadComments={refreshComments}
+                  onAddComment={handleAddComment}
+                  onReplyComment={handleReplyComment}
+                  onEditComment={handleEditComment}
+                />
               </div>
             ))}
           </div>
