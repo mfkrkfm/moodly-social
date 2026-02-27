@@ -1,6 +1,8 @@
 package com.example.moodly_social_api.security;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,9 +25,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -39,29 +38,42 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable);
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable);
 
         // Set session management to stateless
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/auth/signin").permitAll();
             auth.requestMatchers("/auth/signup").permitAll();
             auth.requestMatchers(HttpMethod.GET, "/media/**").permitAll();
-            auth.requestMatchers(HttpMethod.GET, "/{username}").permitAll();
-            auth.requestMatchers(HttpMethod.GET, "/{username}/**").permitAll();
+            auth
+                .requestMatchers(HttpMethod.GET, "/users/{username}")
+                .permitAll();
+            auth
+                .requestMatchers(HttpMethod.GET, "/users/{username}/**")
+                .permitAll();
 
-            auth.requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll();
+            auth
+                .requestMatchers(
+                    "/auth/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**"
+                )
+                .permitAll();
             auth.requestMatchers("/admin/**").hasRole("ADMIN");
 
-
             auth.anyRequest().authenticated();
-
         });
 
-        http.addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(
+            new JwtTokenFilter(jwtTokenProvider),
+            UsernamePasswordAuthenticationFilter.class
+        );
 
         http.exceptionHandling(ex -> {
             ex.authenticationEntryPoint(unauthorizedEntryPoint());
@@ -78,10 +90,8 @@ public class WebSecurityConfig {
                 }
             });
 
-
-            headers.httpStrictTransportSecurity(hsts -> hsts
-                    .includeSubDomains(true)
-                    .maxAgeInSeconds(31536000)
+            headers.httpStrictTransportSecurity(hsts ->
+                hsts.includeSubDomains(true).maxAgeInSeconds(31536000)
             );
         });
 
@@ -89,7 +99,9 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(
+        AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -119,20 +131,26 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList(
+        configuration.setAllowedOriginPatterns(
+            Arrays.asList(
                 "https://*.ngrok-free.app",
                 "http://localhost:*",
                 "https://localhost:*"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+            )
+        );
+        configuration.setAllowedMethods(
+            Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+        );
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
+        configuration.setExposedHeaders(
+            Arrays.asList("Authorization", "Set-Cookie")
+        );
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // apply to all endpoints
         return source;
     }
-
 }

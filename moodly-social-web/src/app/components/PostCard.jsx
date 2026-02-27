@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { Heart, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { getMoodVisual } from "../constants/moods.js";
+import { listLikes } from "../api/postsApi.js";
 import { MediaImage } from "./MediaImage.jsx";
 import { MoodBadge } from "./MoodBadge.jsx";
 import { Button } from "./ui/button.jsx";
@@ -13,7 +16,10 @@ import { Textarea } from "./ui/textarea.jsx";
 function formatTime(iso) {
   try {
     const d = new Date(iso);
-    return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+    return d.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
   } catch {
     return "";
   }
@@ -27,6 +33,7 @@ function initials(name) {
 export function PostCard({
   post,
   currentUsername,
+  authorMoodColor,
   onToggleLike,
   onLoadComments,
   onAddComment,
@@ -42,13 +49,22 @@ export function PostCard({
   const [postDraft, setPostDraft] = useState(post.content || "");
   const [savingPostEdit, setSavingPostEdit] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  // Likes modal
+  const [likesOpen, setLikesOpen] = useState(false);
+  const [likesLoading, setLikesLoading] = useState(false);
+  const [likesError, setLikesError] = useState(null);
+  const [likesUsers, setLikesUsers] = useState([]);
+
   const timestamp = useMemo(() => formatTime(post.createdAt), [post.createdAt]);
   const isOwn = currentUsername && post.authorUsername === currentUsername;
   const mood = getMoodVisual(post.mood);
 
-  const moodOverlayStyle = { backgroundColor: mood.color };
+  const moodBorderStyle = { borderColor: mood.color };
   const postCanSave =
-    !!postDraft.trim() && postDraft.trim() !== (post.content || "").trim() && !savingPostEdit;
+    !!postDraft.trim() &&
+    postDraft.trim() !== (post.content || "").trim() &&
+    !savingPostEdit;
 
   const handleSavePostEdit = async () => {
     if (!postCanSave || !onEditPost) return;
@@ -67,7 +83,7 @@ export function PostCard({
   };
 
   const handleSubmitComment = () => {
-    if (!commentText.trim()) return;
+    if (!onAddComment || !commentText.trim()) return;
     onAddComment(post.id, commentText.trim());
     setCommentText("");
   };
@@ -92,14 +108,107 @@ export function PostCard({
     }
   };
 
-  return (
-    <Card className="glass relative overflow-hidden transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)]">
-      <div className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-10" style={moodOverlayStyle} />
+  const openLikes = async () => {
+    setLikesOpen(true);
+    setLikesError(null);
+    setLikesLoading(true);
+    try {
+      const users = await listLikes(post.id);
+      setLikesUsers(Array.isArray(users) ? users : []);
+    } catch (e) {
+      setLikesUsers([]);
+      setLikesError(e?.message || "Failed to load likes");
+    } finally {
+      setLikesLoading(false);
+    }
+  };
 
+  const likesModal =
+    likesOpen && typeof document !== "undefined"
+      ? createPortal(
+          <AnimatePresence>
+            <motion.div
+              className="fixed inset-0 z-[120] flex items-center justify-center bg-black/35 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLikesOpen(false)}
+            >
+              <motion.div
+                className="w-full max-w-xl rounded-2xl border border-black/10 bg-white/95 p-4 shadow-2xl backdrop-blur sm:p-5"
+                initial={{ scale: 0.98, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.98, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-black/85">Likes</p>
+                  <button
+                    className="control-pill"
+                    type="button"
+                    onClick={() => setLikesOpen(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+
+                <div className="mt-3 max-h-[70vh] space-y-2 overflow-y-auto pr-1">
+                  {likesLoading ? (
+                    <p className="text-sm text-black/55">Loading…</p>
+                  ) : likesError ? (
+                    <p className="text-sm text-error-text whitespace-pre-line">
+                      {likesError}
+                    </p>
+                  ) : likesUsers.length === 0 ? (
+                    <p className="text-sm text-black/55">No likes yet.</p>
+                  ) : (
+                    likesUsers.map((u) => (
+                      <div
+                        key={u.username}
+                        className="flex items-center gap-3 rounded-xl border border-black/10 bg-white/60 p-3"
+                      >
+                        <div className="h-9 w-9 overflow-hidden rounded-full bg-black/10 flex items-center justify-center">
+                          {u.authorPicture?.url ? (
+                            <MediaImage
+                              url={u.authorPicture.url}
+                              alt={u.username}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-sm font-medium text-black/70">
+                              {initials(u.username)}
+                            </span>
+                          )}
+                        </div>
+                        <Link
+                          to={`/u/${encodeURIComponent(u.username)}`}
+                          className="text-sm font-medium text-black/85 hover:underline"
+                        >
+                          @{u.username}
+                        </Link>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>,
+          document.body,
+        )
+      : null;
+
+  return (
+    <Card
+      className="glass relative overflow-hidden border-2 transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.1)]"
+      style={moodBorderStyle}
+    >
       <CardContent className="relative space-y-4 p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-black/10">
+            <div
+              className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-black/10 ring-2 ring-offset-1"
+              style={{ "--tw-ring-color": authorMoodColor || "#9CA3AF" }}
+            >
               {post.authorPicture?.url ? (
                 <MediaImage
                   url={post.authorPicture.url}
@@ -113,7 +222,12 @@ export function PostCard({
               )}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-black/90">{post.authorUsername}</p>
+              <Link
+                to={`/u/${encodeURIComponent(post.authorUsername)}`}
+                className="truncate text-sm font-semibold text-black/90 hover:underline"
+              >
+                {post.authorUsername}
+              </Link>
               <p className="text-xs text-black/50">
                 {timestamp}
                 {post.edited ? " • edited" : ""}
@@ -156,7 +270,11 @@ export function PostCard({
               maxLength={2000}
             />
             <div className="flex items-center justify-end gap-2">
-              <Button variant="outline" className="control-pill" onClick={handleCancelPostEdit}>
+              <Button
+                variant="outline"
+                className="control-pill"
+                onClick={handleCancelPostEdit}
+              >
                 Cancel
               </Button>
               <Button
@@ -177,7 +295,11 @@ export function PostCard({
         {Array.isArray(post.pictures) && post.pictures.length > 0 && (
           <div
             className={`grid gap-2 ${
-              post.pictures.length === 1 ? "grid-cols-1" : post.pictures.length === 2 ? "grid-cols-2" : "grid-cols-3"
+              post.pictures.length === 1
+                ? "grid-cols-1"
+                : post.pictures.length === 2
+                  ? "grid-cols-2"
+                  : "grid-cols-3"
             }`}
           >
             {post.pictures.slice(0, 6).map((pic) => (
@@ -187,7 +309,11 @@ export function PostCard({
                   post.pictures.length === 1 ? "aspect-video" : "aspect-square"
                 }`}
               >
-                <MediaImage url={pic.url} alt={`Media ${pic.id}`} className="h-full w-full object-cover" />
+                <MediaImage
+                  url={pic.url}
+                  alt={`Media ${pic.id}`}
+                  className="h-full w-full object-cover"
+                />
               </div>
             ))}
           </div>
@@ -195,19 +321,31 @@ export function PostCard({
 
         <div className="flex items-center gap-1.5 pt-1">
           <button
-            onClick={() => onToggleLike(post)}
+            onClick={() => onToggleLike?.(post)}
+            disabled={!onToggleLike}
             className={`inline-flex items-center gap-1.5 rounded-full p-2 text-sm transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 ${
               post.likedByMe
                 ? "text-red-600 hover:bg-red-500/10"
                 : "text-black/60 hover:bg-black/5 hover:text-black/80"
             }`}
           >
-            <Heart className={`h-4 w-4 ${post.likedByMe ? "fill-red-600" : ""}`} />
+            <Heart
+              className={`h-4 w-4 ${post.likedByMe ? "fill-red-600" : ""}`}
+            />
             <span>{post.likesCount}</span>
           </button>
 
           <button
+            type="button"
+            onClick={openLikes}
+            className="inline-flex items-center rounded-full px-3 py-2 text-sm text-black/60 transition hover:bg-black/5 hover:text-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
+          >
+            Liked by
+          </button>
+
+          <button
             onClick={handleToggleComments}
+            disabled={!onLoadComments && !Array.isArray(post.comments)}
             className={`inline-flex items-center gap-1.5 rounded-full p-2 text-sm transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 ${
               showComments
                 ? "bg-black/6 text-black/80"
@@ -229,7 +367,9 @@ export function PostCard({
               className="overflow-hidden"
             >
               <div className="space-y-4 border-t border-black/10 pt-4">
-                {loadingComments && <p className="text-xs text-black/55">Loading comments...</p>}
+                {loadingComments && (
+                  <p className="text-xs text-black/55">Loading comments...</p>
+                )}
                 {Array.isArray(post.comments) && post.comments.length > 0 && (
                   <div className="space-y-3">
                     {post.comments.map((comment) => (
@@ -245,23 +385,25 @@ export function PostCard({
                   </div>
                 )}
 
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add a comment..."
-                    value={commentText}
-                    onChange={(event) => setCommentText(event.target.value)}
-                    onKeyDown={handleCommentKeyDown}
-                    className="h-10 rounded-xl border-black/10 bg-white/65 text-sm placeholder:text-black/40 focus-visible:border-black/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/20"
-                  />
-                  <Button
-                    onClick={handleSubmitComment}
-                    disabled={!commentText.trim()}
-                    size="sm"
-                    className="h-10 rounded-xl bg-black text-white transition hover:bg-black/90 active:scale-95 disabled:bg-black/10 disabled:text-black/35"
-                  >
-                    Post
-                  </Button>
-                </div>
+                {onAddComment && (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add a comment..."
+                      value={commentText}
+                      onChange={(event) => setCommentText(event.target.value)}
+                      onKeyDown={handleCommentKeyDown}
+                      className="h-10 rounded-xl border-black/10 bg-white/65 text-sm placeholder:text-black/40 focus-visible:border-black/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/20"
+                    />
+                    <Button
+                      onClick={handleSubmitComment}
+                      disabled={!commentText.trim()}
+                      size="sm"
+                      className="h-10 rounded-xl bg-black text-white transition hover:bg-black/90 active:scale-95 disabled:bg-black/10 disabled:text-black/35"
+                    >
+                      Post
+                    </Button>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -277,19 +419,28 @@ export function PostCard({
         destructive
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={() => {
-          onDelete(post.id);
+          onDelete?.(post.id);
           setDeleteModalOpen(false);
         }}
       />
+      {likesModal}
     </Card>
   );
 }
 
-function CommentNode({ node, postId, currentUsername, depth = 0, onReply, onEdit }) {
+function CommentNode({
+  node,
+  postId,
+  currentUsername,
+  depth = 0,
+  onReply,
+  onEdit,
+}) {
   const maxVisualDepth = 3;
   const addLevelIndent = depth > 0 && depth <= maxVisualDepth;
   const continuedThread = depth === maxVisualDepth + 1;
-  const isOwnComment = !!currentUsername && currentUsername === node.authorUsername;
+  const isOwnComment =
+    !!currentUsername && currentUsername === node.authorUsername;
 
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -297,7 +448,10 @@ function CommentNode({ node, postId, currentUsername, depth = 0, onReply, onEdit
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(node.content || "");
   const [savingEdit, setSavingEdit] = useState(false);
-  const commentTime = useMemo(() => formatTime(node.createdAt), [node.createdAt]);
+  const commentTime = useMemo(
+    () => formatTime(node.createdAt),
+    [node.createdAt],
+  );
 
   const submitReply = async () => {
     if (!onReply || !replyText.trim() || replying) return;
@@ -319,7 +473,13 @@ function CommentNode({ node, postId, currentUsername, depth = 0, onReply, onEdit
   };
 
   const submitEdit = async () => {
-    if (!onEdit || !editText.trim() || savingEdit || editText.trim() === (node.content || "").trim()) return;
+    if (
+      !onEdit ||
+      !editText.trim() ||
+      savingEdit ||
+      editText.trim() === (node.content || "").trim()
+    )
+      return;
     setSavingEdit(true);
     try {
       await onEdit(postId, node.id, editText.trim());
@@ -330,8 +490,14 @@ function CommentNode({ node, postId, currentUsername, depth = 0, onReply, onEdit
   };
 
   return (
-    <div className={`space-y-2 ${addLevelIndent ? "ml-2 border-l border-black/15 pl-3" : ""}`}>
-      {continuedThread && <p className="ml-10 text-[11px] font-medium text-black/45">Thread continues</p>}
+    <div
+      className={`space-y-2 ${addLevelIndent ? "ml-2 border-l border-black/15 pl-3" : ""}`}
+    >
+      {continuedThread && (
+        <p className="ml-10 text-[11px] font-medium text-black/45">
+          Thread continues
+        </p>
+      )}
 
       <div className="flex min-w-0 gap-3">
         <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-black/10">
@@ -350,7 +516,9 @@ function CommentNode({ node, postId, currentUsername, depth = 0, onReply, onEdit
 
         <div className="min-w-0 flex-1 rounded-xl border border-black/10 bg-white/70 px-3 py-2">
           <p className="mb-1 text-xs text-black/80">
-            <span className="font-semibold text-black/90">{node.authorUsername}</span>
+            <span className="font-semibold text-black/90">
+              {node.authorUsername}
+            </span>
             {commentTime ? ` • ${commentTime}` : ""}
             {node.edited ? " • edited" : ""}
           </p>

@@ -8,48 +8,62 @@ import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.repository.UserRepository;
 import com.example.moodly_social_api.service.mapper.ProfileMapper;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @Service
 @RequiredArgsConstructor
-public class ProfileService  {
+public class ProfileService {
 
     private final UserRepository userRepository;
     private final ProfileMapper profileMapper;
 
     @Transactional(readOnly = true)
     public ProfileResponse getProfileById(Long currentUserId) {
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+        User user = userRepository
+            .findById(currentUserId)
+            .orElseThrow(() ->
+                new CustomException("User not found", HttpStatus.NOT_FOUND)
+            );
         Profile profile = user.getProfile();
         if (profile == null) {
-            throw new CustomException("Profile not found", HttpStatus.NOT_FOUND);
+            throw new CustomException(
+                "Profile not found",
+                HttpStatus.NOT_FOUND
+            );
         }
         return profileMapper.toProfileResponse(profile);
     }
 
     @Transactional(readOnly = true)
     public ProfileResponse getProfileByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+        User user = userRepository
+            .findByUsername(username)
+            .orElseThrow(() ->
+                new CustomException("User not found", HttpStatus.NOT_FOUND)
+            );
         Profile profile = user.getProfile();
         if (profile == null) {
-            throw new CustomException("Profile not found", HttpStatus.NOT_FOUND);
+            throw new CustomException(
+                "Profile not found",
+                HttpStatus.NOT_FOUND
+            );
         }
         return profileMapper.toProfileResponse(profile);
     }
 
     @Transactional
-    public ProfileResponse updateProfile(Long currentUserId, UpdateProfileRequest request) {
+    public ProfileResponse updateProfile(
+        Long currentUserId,
+        UpdateProfileRequest request
+    ) {
         Profile profile = getCurrentProfile(currentUserId);
-        profile.setFirstName(request.getFirstName());
-        profile.setLastName(request.getLastName());
+        profile.setFirstName(normalizeOptionalText(request.getFirstName()));
+        profile.setLastName(normalizeOptionalText(request.getLastName()));
         profile.setBio(request.getBio());
         profile.setBirthDate(request.getBirthDate());
         profile.setMood(request.getMood());
@@ -58,9 +72,15 @@ public class ProfileService  {
     }
 
     @Transactional
-    public ProfileResponse updateProfilePicture(Long currentUserId, MultipartFile file) {
+    public ProfileResponse updateProfilePicture(
+        Long currentUserId,
+        MultipartFile file
+    ) {
         if (file == null || file.isEmpty()) {
-            throw new CustomException("Profile picture file is required", HttpStatus.BAD_REQUEST);
+            throw new CustomException(
+                "Profile picture file is required",
+                HttpStatus.BAD_REQUEST
+            );
         }
 
         Profile profile = getCurrentProfile(currentUserId);
@@ -73,7 +93,10 @@ public class ProfileService  {
         try {
             picture.setContent(file.getBytes());
         } catch (IOException e) {
-            throw new CustomException("Failed to read uploaded file", HttpStatus.BAD_REQUEST);
+            throw new CustomException(
+                "Failed to read uploaded file",
+                HttpStatus.BAD_REQUEST
+            );
         }
 
         userRepository.flush();
@@ -89,13 +112,26 @@ public class ProfileService  {
     }
 
     private Profile getCurrentProfile(Long currentUserId) {
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+        User user = userRepository
+            .findById(currentUserId)
+            .orElseThrow(() ->
+                new CustomException("User not found", HttpStatus.NOT_FOUND)
+            );
         Profile profile = user.getProfile();
         if (profile == null) {
-            throw new CustomException("Profile not found", HttpStatus.NOT_FOUND);
+            throw new CustomException(
+                "Profile not found",
+                HttpStatus.NOT_FOUND
+            );
         }
         return profile;
     }
 
+    private String normalizeOptionalText(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
 }

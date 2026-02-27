@@ -6,28 +6,28 @@ import com.example.moodly_social_api.entity.User;
 import com.example.moodly_social_api.entity.UserRole;
 import com.example.moodly_social_api.exception.CustomException;
 import com.example.moodly_social_api.repository.UserRepository;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminUserService {
 
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public List<AdminUserResponse> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::toAdminUserResponse)
-                .collect(Collectors.toList());
+        return userRepository
+            .findAll()
+            .stream()
+            .map(this::toAdminUserResponse)
+            .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +37,10 @@ public class AdminUserService {
     }
 
     @Transactional
-    public AdminUserResponse updateUserRoles(Long userId, UpdateUserRolesRequest request) {
+    public AdminUserResponse updateUserRoles(
+        Long userId,
+        UpdateUserRolesRequest request
+    ) {
         User user = findUserOrThrow(userId);
         List<UserRole> normalizedRoles = normalizeRoles(request.getRoles());
         user.setAppUserRoles(normalizedRoles);
@@ -51,16 +54,25 @@ public class AdminUserService {
     }
 
     private User findUserOrThrow(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+        return userRepository
+            .findById(userId)
+            .orElseThrow(() ->
+                new CustomException("User not found", HttpStatus.NOT_FOUND)
+            );
     }
 
     private static List<UserRole> normalizeRoles(List<UserRole> roles) {
         if (roles == null || roles.isEmpty()) {
-            throw new CustomException("Roles must not be empty", HttpStatus.BAD_REQUEST);
+            throw new CustomException(
+                "Roles must not be empty",
+                HttpStatus.BAD_REQUEST
+            );
         }
         if (roles.stream().anyMatch(Objects::isNull)) {
-            throw new CustomException("Roles must not contain null values", HttpStatus.BAD_REQUEST);
+            throw new CustomException(
+                "Roles must not contain null values",
+                HttpStatus.BAD_REQUEST
+            );
         }
 
         Set<UserRole> uniqueRoles = new HashSet<>(roles);
@@ -72,7 +84,9 @@ public class AdminUserService {
         response.setId(user.getId());
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
-        response.setProfileId(user.getProfile() != null ? user.getProfile().getId() : null);
+        response.setProfileId(
+            user.getProfile() != null ? user.getProfile().getId() : null
+        );
         response.setRoles(user.getAppUserRoles());
         return response;
     }

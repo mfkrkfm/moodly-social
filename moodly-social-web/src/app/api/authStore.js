@@ -4,9 +4,9 @@ const EXP_SKEW_SECONDS = 30;
 
 function getStorage() {
   try {
-    if (typeof window !== "undefined" && window.sessionStorage) return window.sessionStorage;
-  } catch {
-  }
+    if (typeof window !== "undefined" && window.sessionStorage)
+      return window.sessionStorage;
+  } catch {}
   return null;
 }
 
@@ -27,25 +27,21 @@ function write(key, value) {
   const storage = getStorage();
   try {
     storage?.setItem(key, value);
-  } catch {
-  }
+  } catch {}
   try {
     // Keep localStorage clear to minimize token persistence surface.
     localStorage.removeItem(key);
-  } catch {
-  }
+  } catch {}
 }
 
 function remove(key) {
   const storage = getStorage();
   try {
     storage?.removeItem(key);
-  } catch {
-  }
+  } catch {}
   try {
     localStorage.removeItem(key);
-  } catch {
-  }
+  } catch {}
 }
 
 function decodeBase64Url(value) {
@@ -57,7 +53,7 @@ function decodeBase64Url(value) {
     return decodeURIComponent(
       Array.from(decoded)
         .map((ch) => `%${ch.charCodeAt(0).toString(16).padStart(2, "0")}`)
-        .join("")
+        .join(""),
     );
   } catch {
     return null;
@@ -101,7 +97,11 @@ function isTokenForUser(token, userId) {
 
 export function saveAuthSession(authResponse) {
   const token = authResponse?.token;
-  if (token && isTokenUsable(token) && isTokenForUser(token, authResponse?.userId)) {
+  if (
+    token &&
+    isTokenUsable(token) &&
+    isTokenForUser(token, authResponse?.userId)
+  ) {
     write(TOKEN_KEY, token);
   } else {
     remove(TOKEN_KEY);
@@ -151,4 +151,11 @@ export function getSession() {
 export function clearAuth() {
   remove(TOKEN_KEY);
   remove(SESSION_KEY);
+}
+
+export function patchSession(patch) {
+  if (!patch || typeof patch !== "object") return;
+  const current = getSession();
+  if (!current) return;
+  write(SESSION_KEY, JSON.stringify({ ...current, ...patch }));
 }

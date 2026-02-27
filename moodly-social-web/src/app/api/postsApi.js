@@ -1,4 +1,5 @@
 import { http } from "./http.js";
+import imageCompression from "browser-image-compression";
 
 export function listFeed() {
   return http("/posts", { method: "GET" });
@@ -8,14 +9,52 @@ export function getPost(postId) {
   return http(`/posts/${postId}`, { method: "GET" });
 }
 
-export function createPost({ content, mood, files = [] }) {
+export async function createPost({ content, mood, files = [] }) {
   const fd = new FormData();
+
+  // Add JSON post data
   fd.append(
     "post",
-    new Blob([JSON.stringify({ content, mood })], { type: "application/json" })
+    new Blob([JSON.stringify({ content, mood })], { type: "application/json" }),
   );
-  for (const file of files) fd.append("files", file);
 
+  // Compress each file before appending
+  for (const file of files) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      console.warn(
+        "Skipping compression for",
+        file.name,
+        "unsupported type",
+        file.type,
+      );
+      fd.append("files", file, file.name);
+      continue;
+    }
+
+    const options = {
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 800,
+      initialQuality: 0.7,
+      useWebWorker: true,
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        "Original:",
+        (file.size / 1024 / 1024).toFixed(2),
+        "MB | Compressed:",
+        (compressedFile.size / 1024 / 1024).toFixed(2),
+        "MB",
+      );
+      fd.append("files", compressedFile, file.name);
+    } catch (error) {
+      console.error("Compression failed:", error);
+      fd.append("files", file, file.name);
+    }
+  }
+
+  // Send to backend
   return http("/posts", { method: "POST", body: fd });
 }
 
@@ -40,6 +79,40 @@ export function unlike(postId) {
 
 export function listLikes(postId) {
   return http(`/posts/${postId}/likes`, { method: "GET" });
+}
+
+async function isLikedByUser(postId, username) {
+  if (!username) return false;
+  const likes = await listLikes(postId);
+  return (
+    Array.isArray(likes) && likes.some((user) => user?.username === username)
+  );
+}
+
+export async function hydratePostsLikedByMe(posts, username) {
+  if (!Array.isArray(posts) || posts.length === 0 || !username) return posts;
+
+  return Promise.all(
+    posts.map(async (post) => {
+      if (!post?.id) return post;
+      try {
+        const likedByMe = await isLikedByUser(post.id, username);
+        return { ...post, likedByMe };
+      } catch {
+        return post;
+      }
+    }),
+  );
+}
+
+export async function hydratePostLikedByMe(post, username) {
+  if (!post?.id || !username) return post;
+  try {
+    const likedByMe = await isLikedByUser(post.id, username);
+    return { ...post, likedByMe };
+  } catch {
+    return post;
+  }
 }
 
 export function addComment(postId, content) {

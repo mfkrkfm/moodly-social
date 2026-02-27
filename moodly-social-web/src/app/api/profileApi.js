@@ -20,17 +20,41 @@ export function deleteProfilePicture() {
 }
 
 export function getPublicProfile(username) {
-  return http(`/${encodeURIComponent(username)}`, { method: "GET" });
+  return http(`/users/${encodeURIComponent(username)}`, { method: "GET" });
 }
 
 export function getPublicPosts(username) {
-  return http(`/${encodeURIComponent(username)}/posts`, { method: "GET" });
+  return http(`/users/${encodeURIComponent(username)}/posts`, {
+    method: "GET",
+  });
 }
 
 export function follow(username) {
-  return http(`/${encodeURIComponent(username)}/followers`, { method: "POST" });
+  return http(`/users/${encodeURIComponent(username)}/followers`, {
+    method: "POST",
+  });
 }
 
 export function unfollow(username) {
-  return http(`/${encodeURIComponent(username)}/followers`, { method: "DELETE" });
+  return http(`/users/${encodeURIComponent(username)}/followers`, {
+    method: "DELETE",
+  });
+}
+
+export function getPublicPost(username, postId) {
+  return http(`/users/${encodeURIComponent(username)}/posts/${postId}`, {
+    method: "GET",
+  });
+}
+
+export function getFollowers(username) {
+  return http(`/users/${encodeURIComponent(username)}/followers`, {
+    method: "GET",
+  });
+}
+
+export function getFollowing(username) {
+  return http(`/users/${encodeURIComponent(username)}/following`, {
+    method: "GET",
+  });
 }

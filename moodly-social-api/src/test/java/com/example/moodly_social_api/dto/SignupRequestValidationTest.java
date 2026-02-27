@@ -1,18 +1,17 @@
 package com.example.moodly_social_api.dto;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.example.moodly_social_api.dto.auth.SignupRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class SignupRequestValidationTest {
 
@@ -29,14 +28,23 @@ class SignupRequestValidationTest {
     void emptyFields_failsValidation() {
         SignupRequest request = new SignupRequest();
 
-        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(request);
-        Set<String> propertyPaths = violations.stream()
-                .map(v -> v.getPropertyPath().toString())
-                .collect(Collectors.toSet());
+        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(
+            request
+        );
+        Set<String> propertyPaths = violations
+            .stream()
+            .map(v -> v.getPropertyPath().toString())
+            .collect(Collectors.toSet());
 
-        assertThat(propertyPaths).containsExactlyInAnyOrder("username", "email", "password");
+        assertThat(propertyPaths).containsExactlyInAnyOrder(
+            "username",
+            "email",
+            "password"
+        );
 
-        assertThat(violations).allMatch(v -> v.getMessage().contains("must not be blank"));
+        assertThat(violations).allMatch(v ->
+            v.getMessage().contains("must not be blank")
+        );
     }
 
     @Test
@@ -47,12 +55,18 @@ class SignupRequestValidationTest {
         request.setEmail("not-an-email");
         request.setPassword("Password1!");
 
-        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(request);
+        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(
+            request
+        );
 
         assertThat(violations).hasSize(1);
-        ConstraintViolation<SignupRequest> violation = violations.iterator().next();
+        ConstraintViolation<SignupRequest> violation = violations
+            .iterator()
+            .next();
         assertThat(violation.getPropertyPath().toString()).isEqualTo("email");
-        assertThat(violation.getMessage()).isEqualTo("must be a well-formed email address");
+        assertThat(violation.getMessage()).isEqualTo(
+            "must be a well-formed email address"
+        );
     }
 
     @Test
@@ -63,9 +77,31 @@ class SignupRequestValidationTest {
         request.setEmail("user@mail.com");
         request.setPassword("Password1!");
 
-        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(request);
+        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(
+            request
+        );
 
         assertThat(violations).isEmpty();
     }
 
+    @Test
+    @DisplayName("Invalid username format should trigger @Pattern violation")
+    void invalidUsername_failsValidation() {
+        SignupRequest request = new SignupRequest();
+        request.setUsername("bad user");
+        request.setEmail("user@mail.com");
+        request.setPassword("Password1!");
+
+        Set<ConstraintViolation<SignupRequest>> violations = validator.validate(
+            request
+        );
+
+        assertThat(violations).hasSize(1);
+        ConstraintViolation<SignupRequest> violation = violations
+            .iterator()
+            .next();
+        assertThat(violation.getPropertyPath().toString()).isEqualTo(
+            "username"
+        );
+    }
 }
