@@ -16,6 +16,7 @@ export function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const [form, setForm] = useState({ firstName: "", lastName: "", bio: "", birthDate: "" });
 
@@ -53,6 +54,7 @@ export function ProfilePage() {
   async function onSave() {
     setSaving(true);
     setError(null);
+    setSuccess(null);
 
     if (form.birthDate) {
       const date = new Date(form.birthDate);
@@ -75,6 +77,8 @@ export function ProfilePage() {
         birthDate: form.birthDate || null,
       });
       setProfile(updated);
+      setSuccess("Your changes have been saved successfully!");
+      setTimeout(() => setSuccess(null), 4000);
     } catch (err) {
       let parsed = err?.details;
       if (!parsed || typeof parsed === "string") {
@@ -163,6 +167,12 @@ export function ProfilePage() {
         {error && (
           <div className="rounded-2xl border border-error-border bg-error-bg/95 px-4 py-3 text-sm text-error-text whitespace-pre-line">
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 whitespace-pre-line">
+            {success}
           </div>
         )}
 
