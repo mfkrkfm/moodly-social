@@ -26,16 +26,26 @@ function extractProblem(err) {
 
 function formatProblemMessage(problem, fallback) {
   if (!problem || typeof problem !== "object") return fallback;
-  if (typeof problem.detail === "string" && problem.detail.trim()) return problem.detail;
-  if (typeof problem.title === "string" && problem.title.trim()) return problem.title;
+  if (typeof problem.detail === "string" && problem.detail.trim())
+    return problem.detail;
+  if (typeof problem.title === "string" && problem.title.trim())
+    return problem.title;
   return fallback;
+}
+
+function validateUsername(username) {
+  return /^[A-Za-z0-9](?:[A-Za-z0-9._]{2,48}[A-Za-z0-9])?$/.test(username);
 }
 
 export function AccountPage() {
   const navigate = useNavigate();
   const session = useMemo(() => getSession(), []);
   const [account, setAccount] = useState(null);
-  const [form, setForm] = useState({ username: "", email: "", newPassword: "" });
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    newPassword: "",
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -66,7 +76,9 @@ export function AccountPage() {
           return;
         }
 
-        setError(formatProblemMessage(problem, e.message || "Failed to load account"));
+        setError(
+          formatProblemMessage(problem, e.message || "Failed to load account"),
+        );
         return;
       }
 
@@ -85,10 +97,24 @@ export function AccountPage() {
     setError(null);
     setSuccess(null);
     setFieldErrors({});
+    const username = form.username.trim();
+    const email = form.email.trim();
+
+    if (!validateUsername(username)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        username:
+          "Username must be 4-50 english characters, use letters/numbers/._ and cannot start or end with . or _.",
+      }));
+      setError("Please fix the highlighted fields.");
+      setSaving(false);
+      return;
+    }
+
     try {
       const updated = await updateAccount({
-        username: form.username.trim(),
-        email: form.email.trim(),
+        username,
+        email,
         newPassword: form.newPassword ? form.newPassword : undefined,
       });
       setAccount(updated);
@@ -110,16 +136,18 @@ export function AccountPage() {
           const normalized = {};
 
           if (problem.errors.username) {
-            normalized.username = "Username must be between 4 and 50 characters.";
+            normalized.username =
+              "Username must be between 4 and 50 characters.";
           }
 
           if (problem.errors.email) {
-            normalized.email = "Enter a valid email address (max 100 characters).";
+            normalized.email =
+              "Enter a valid email address (max 100 characters).";
           }
 
           if (problem.errors.newPassword) {
             normalized.newPassword =
-              "Password must be 8–100 characters and include uppercase, lowercase, number and special character (no spaces).";
+              "Password must be 8–100 english characters and include uppercase, lowercase, number and special character (no spaces).";
           }
 
           setFieldErrors(normalized);
@@ -153,7 +181,9 @@ export function AccountPage() {
         <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <div>
             <h1 className="text-lg font-semibold text-black/90">Account</h1>
-            <p className="text-xs text-black/55">@{form.username || account?.username}</p>
+            <p className="text-xs text-black/55">
+              @{form.username || account?.username}
+            </p>
           </div>
           <Link
             to="/feed"
@@ -185,11 +215,15 @@ export function AccountPage() {
                 value={form.username}
                 minLength={4}
                 maxLength={50}
-                onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, username: e.target.value }))
+                }
                 className={`mt-1 ${fieldErrors?.username ? "border-error-border focus-visible:ring-error-border" : ""}`}
               />
               {fieldErrors?.username && (
-                <p className="mt-1 text-xs text-error-text">{fieldErrors.username}</p>
+                <p className="mt-1 text-xs text-error-text">
+                  {fieldErrors.username}
+                </p>
               )}
             </div>
 
@@ -198,11 +232,15 @@ export function AccountPage() {
               <Input
                 value={form.email}
                 maxLength={100}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
                 className={`mt-1 ${fieldErrors?.email ? "border-error-border focus-visible:ring-error-border" : ""}`}
               />
               {fieldErrors?.email && (
-                <p className="mt-1 text-xs text-error-text">{fieldErrors.email}</p>
+                <p className="mt-1 text-xs text-error-text">
+                  {fieldErrors.email}
+                </p>
               )}
             </div>
 
@@ -213,16 +251,24 @@ export function AccountPage() {
                 value={form.newPassword}
                 minLength={8}
                 maxLength={100}
-                onChange={(e) => setForm((f) => ({ ...f, newPassword: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, newPassword: e.target.value }))
+                }
                 className={`mt-1 ${fieldErrors?.newPassword ? "border-error-border focus-visible:ring-error-border" : ""}`}
                 placeholder="Leave empty to keep current password"
               />
               {fieldErrors?.newPassword && (
-                <p className="mt-1 text-xs text-error-text">{fieldErrors.newPassword}</p>
+                <p className="mt-1 text-xs text-error-text">
+                  {fieldErrors.newPassword}
+                </p>
               )}
             </div>
 
-            <Button onClick={onSave} disabled={saving} className="primary-action w-full">
+            <Button
+              onClick={onSave}
+              disabled={saving}
+              className="primary-action w-full"
+            >
               {saving ? "Saving…" : "Save"}
             </Button>
           </CardContent>

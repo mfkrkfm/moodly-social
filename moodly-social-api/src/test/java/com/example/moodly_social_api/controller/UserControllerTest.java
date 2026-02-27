@@ -1,5 +1,10 @@
 package com.example.moodly_social_api.controller;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.example.moodly_social_api.dto.user.UpdateUserRequest;
 import com.example.moodly_social_api.dto.user.UserResponse;
 import com.example.moodly_social_api.exception.CustomException;
@@ -17,11 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
@@ -42,8 +42,8 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(userController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .build();
         objectMapper = new ObjectMapper();
     }
 
@@ -59,12 +59,12 @@ class UserControllerTest {
         when(authentication.getName()).thenReturn(userId.toString());
         when(userService.getUser(userId)).thenReturn(userResponse);
 
-        mockMvc.perform(get("/account")
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId))
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.email").value("test@example.com"));
+        mockMvc
+            .perform(get("/account").principal(authentication))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(userId))
+            .andExpect(jsonPath("$.username").value("testuser"))
+            .andExpect(jsonPath("$.email").value("test@example.com"));
 
         verify(userService, times(1)).getUser(userId);
     }
@@ -74,9 +74,9 @@ class UserControllerTest {
     void getMyUser_withInvalidToken_shouldThrowException() throws Exception {
         when(authentication.getName()).thenReturn("invalid");
 
-        mockMvc.perform(get("/account")
-                        .principal(authentication))
-                .andExpect(status().isUnauthorized());
+        mockMvc
+            .perform(get("/account").principal(authentication))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -93,34 +93,71 @@ class UserControllerTest {
         userResponse.setEmail("updated@example.com");
 
         when(authentication.getName()).thenReturn(userId.toString());
-        when(userService.updateUser(eq(userId), any(UpdateUserRequest.class))).thenReturn(userResponse);
+        when(
+            userService.updateUser(eq(userId), any(UpdateUserRequest.class))
+        ).thenReturn(userResponse);
 
-        mockMvc.perform(put("/account")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("updateduser"))
-                .andExpect(jsonPath("$.email").value("updated@example.com"));
+        mockMvc
+            .perform(
+                put("/account")
+                    .principal(authentication)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("updateduser"))
+            .andExpect(jsonPath("$.email").value("updated@example.com"));
 
-        verify(userService, times(1)).updateUser(eq(userId), any(UpdateUserRequest.class));
+        verify(userService, times(1)).updateUser(
+            eq(userId),
+            any(UpdateUserRequest.class)
+        );
     }
 
     @Test
     /// Test: Updating user info with invalid data returns 400 error.
-    void updateMyUser_withInvalidData_shouldReturnBadRequest() throws Exception {
+    void updateMyUser_withInvalidData_shouldReturnBadRequest()
+        throws Exception {
         Long userId = 1L;
         UpdateUserRequest request = new UpdateUserRequest();
 
         when(authentication.getName()).thenReturn(userId.toString());
 
-        mockMvc.perform(put("/account")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+        mockMvc
+            .perform(
+                put("/account")
+                    .principal(authentication)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
+            .andExpect(status().isBadRequest());
 
         verify(userService, never()).updateUser(any(), any());
+    }
+
+    @Test
+    void updateMyUser_withInvalidUsernameFormat_shouldReturnBadRequest()
+        throws Exception {
+        Long userId = 1L;
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setUsername("bad user");
+        request.setEmail("updated@example.com");
+
+        when(authentication.getName()).thenReturn(userId.toString());
+
+        mockMvc
+            .perform(
+                put("/account")
+                    .principal(authentication)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
+            .andExpect(status().isBadRequest());
+
+        verify(userService, never()).updateUser(
+            anyLong(),
+            any(UpdateUserRequest.class)
+        );
     }
 
     @Test
@@ -132,30 +169,39 @@ class UserControllerTest {
 
         when(authentication.getName()).thenReturn("invalid");
 
-        mockMvc.perform(put("/account")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+        mockMvc
+            .perform(
+                put("/account")
+                    .principal(authentication)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
     /// Test: Updating user info for non-existing user returns 404 error.
-    void updateMyUser_withNonExistingUser_shouldReturnNotFound() throws Exception {
+    void updateMyUser_withNonExistingUser_shouldReturnNotFound()
+        throws Exception {
         Long userId = 999L;
         UpdateUserRequest request = new UpdateUserRequest();
         request.setUsername("updateduser");
         request.setEmail("updated@example.com");
 
         when(authentication.getName()).thenReturn(userId.toString());
-        when(userService.updateUser(eq(userId), any(UpdateUserRequest.class)))
-                .thenThrow(new CustomException("User not found", HttpStatus.NOT_FOUND));
+        when(
+            userService.updateUser(eq(userId), any(UpdateUserRequest.class))
+        ).thenThrow(
+            new CustomException("User not found", HttpStatus.NOT_FOUND)
+        );
 
-        mockMvc.perform(put("/account")
-                        .principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound());
+        mockMvc
+            .perform(
+                put("/account")
+                    .principal(authentication)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+            )
+            .andExpect(status().isNotFound());
     }
 }
-

@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMyProfile, updateMyProfile, uploadProfilePicture, deleteProfilePicture, getPublicPosts } from "../api/profileApi.js";
+import {
+  getMyProfile,
+  updateMyProfile,
+  uploadProfilePicture,
+  deleteProfilePicture,
+  getPublicPosts,
+} from "../api/profileApi.js";
 import { getSession } from "../api/authStore.js";
 import { getAuthorAuraColor } from "../constants/moods.js";
 import { MediaImage } from "../components/MediaImage.jsx";
@@ -8,6 +14,8 @@ import { Card, CardContent } from "../components/ui/card.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import { Textarea } from "../components/ui/textarea.jsx";
+
+const NAME_REGEX = /^[\p{L}\p{M}]+(?:[ '\-][\p{L}\p{M}]+)*$/u;
 
 export function ProfilePage() {
   const session = useMemo(() => getSession(), []);
@@ -18,7 +26,12 @@ export function ProfilePage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const [form, setForm] = useState({ firstName: "", lastName: "", bio: "", birthDate: "" });
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    bio: "",
+    birthDate: "",
+  });
 
   async function load() {
     setError(null);
@@ -49,12 +62,33 @@ export function ProfilePage() {
     load();
   }, []);
 
-  const dominantMoodColor = useMemo(() => getAuthorAuraColor(myPosts.map(p => p.mood)), [myPosts]);
+  const dominantMoodColor = useMemo(
+    () => getAuthorAuraColor(myPosts.map((p) => p.mood)),
+    [myPosts],
+  );
 
   async function onSave() {
     setSaving(true);
     setError(null);
     setSuccess(null);
+
+    const firstName = form.firstName.trim();
+    const lastName = form.lastName.trim();
+
+    if (firstName && !NAME_REGEX.test(firstName)) {
+      setError(
+        "First name may only contain letters, spaces, apostrophes, and hyphens.",
+      );
+      setSaving(false);
+      return;
+    }
+    if (lastName && !NAME_REGEX.test(lastName)) {
+      setError(
+        "Last name may only contain letters, spaces, apostrophes, and hyphens.",
+      );
+      setSaving(false);
+      return;
+    }
 
     if (form.birthDate) {
       const date = new Date(form.birthDate);
@@ -71,8 +105,8 @@ export function ProfilePage() {
 
     try {
       const updated = await updateMyProfile({
-        firstName: form.firstName || null,
-        lastName: form.lastName || null,
+        firstName: firstName || null,
+        lastName: lastName || null,
         bio: form.bio || null,
         birthDate: form.birthDate || null,
       });
@@ -82,10 +116,18 @@ export function ProfilePage() {
     } catch (err) {
       let parsed = err?.details;
       if (!parsed || typeof parsed === "string") {
-        try { parsed = JSON.parse(err?.message || ""); } catch { parsed = null; }
+        try {
+          parsed = JSON.parse(err?.message || "");
+        } catch {
+          parsed = null;
+        }
       }
       if (!parsed || typeof parsed === "string") {
-        try { parsed = JSON.parse(String(err?.details || "")); } catch { parsed = null; }
+        try {
+          parsed = JSON.parse(String(err?.details || ""));
+        } catch {
+          parsed = null;
+        }
       }
 
       const validationErrors = parsed?.errors;
@@ -96,8 +138,9 @@ export function ProfilePage() {
           bio: "Bio is invalid",
           birthDate: "Birth date must be in the past",
         };
-        const msgs = Object.keys(validationErrors)
-          .map((field) => fieldMessages[field] || `${field} is invalid`);
+        const msgs = Object.keys(validationErrors).map(
+          (field) => fieldMessages[field] || `${field} is invalid`,
+        );
         setError(msgs.join("\n"));
       } else {
         const msg = err?.message || "Failed to update profile";
@@ -151,8 +194,12 @@ export function ProfilePage() {
       <header className="glass sticky top-0 z-20 rounded-none border-x-0 border-t-0">
         <div className="mx-auto flex max-w-[680px] items-center justify-between px-3 py-3 sm:px-4">
           <div>
-            <h1 className="text-lg font-semibold text-black/90">Your profile</h1>
-            <p className="text-xs text-black/55">@{session?.username || profile?.username}</p>
+            <h1 className="text-lg font-semibold text-black/90">
+              Your profile
+            </h1>
+            <p className="text-xs text-black/55">
+              @{session?.username || profile?.username}
+            </p>
           </div>
           <Link
             to="/feed"
@@ -181,24 +228,44 @@ export function ProfilePage() {
             <div className="flex items-center gap-4">
               <div
                 className="h-16 w-16 overflow-hidden rounded-full bg-black/10 flex items-center justify-center ring-3 ring-offset-2"
-                style={{ '--tw-ring-color': dominantMoodColor || '#9CA3AF' }}
+                style={{ "--tw-ring-color": dominantMoodColor || "#9CA3AF" }}
               >
                 {profile?.authorPicture?.url ? (
-                  <MediaImage url={profile.authorPicture.url} alt={profile.username} className="w-full h-full object-cover" />
+                  <MediaImage
+                    url={profile.authorPicture.url}
+                    alt={profile.username}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span className="text-black/80 font-semibold text-xl">{(profile?.username || "?")[0]?.toUpperCase()}</span>
+                  <span className="text-black/80 font-semibold text-xl">
+                    {(profile?.username || "?")[0]?.toUpperCase()}
+                  </span>
                 )}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-black/85">{profile?.username}</p>
-                <p className="text-xs text-black/55">Followers {profile?.followersCount ?? 0} • Following {profile?.followingCount ?? 0}</p>
+                <p className="text-sm font-medium text-black/85">
+                  {profile?.username}
+                </p>
+                <p className="text-xs text-black/55">
+                  Followers {profile?.followersCount ?? 0} • Following{" "}
+                  {profile?.followingCount ?? 0}
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <label className="control-pill cursor-pointer active:scale-95">
-                  <input type="file" accept="image/*" className="hidden" onChange={onUpload} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onUpload}
+                  />
                   Upload
                 </label>
-                <Button variant="outline" onClick={onDeletePicture} className="control-pill">
+                <Button
+                  variant="outline"
+                  onClick={onDeletePicture}
+                  className="control-pill"
+                >
                   Remove
                 </Button>
               </div>
@@ -214,7 +281,9 @@ export function ProfilePage() {
                 <Input
                   value={form.firstName}
                   maxLength={100}
-                  onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, firstName: e.target.value }))
+                  }
                   className="mt-1"
                 />
               </div>
@@ -223,7 +292,9 @@ export function ProfilePage() {
                 <Input
                   value={form.lastName}
                   maxLength={100}
-                  onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, lastName: e.target.value }))
+                  }
                   className="mt-1"
                 />
               </div>
@@ -234,11 +305,15 @@ export function ProfilePage() {
               <Textarea
                 value={form.bio}
                 maxLength={500}
-                onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, bio: e.target.value }))
+                }
                 className="mt-1 min-h-[100px]"
                 placeholder="Tell people what you’re about…"
               />
-              <p className="mt-1 text-xs text-black/50">{form.bio.length}/500</p>
+              <p className="mt-1 text-xs text-black/50">
+                {form.bio.length}/500
+              </p>
             </div>
 
             <div>
@@ -246,9 +321,13 @@ export function ProfilePage() {
               <Input
                 type="date"
                 min="1900-01-01"
-                max={new Date(Date.now() - 86400000).toISOString().split("T")[0]}
+                max={
+                  new Date(Date.now() - 86400000).toISOString().split("T")[0]
+                }
                 value={form.birthDate || ""}
-                onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, birthDate: e.target.value }))
+                }
                 className="mt-1"
               />
             </div>
