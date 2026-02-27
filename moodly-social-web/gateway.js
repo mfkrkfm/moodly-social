@@ -18,14 +18,29 @@ app.use((req, res, next) => {
 });
 
 // -------------- Backend proxy --------------
-// Proxy ALL API-like requests to backend
-app.use(
-  ["/auth", "/profile", "/posts", "/account", "/admin", "/media", "/users"],
-  createProxyMiddleware({
-    target: "http://backend:8080",
-    changeOrigin: true,
-  }),
-);
+const apiPaths = [
+  "/auth",
+  "/profile",
+  "/posts",
+  "/account",
+  "/admin",
+  "/media",
+  "/users",
+];
+
+const apiProxy = createProxyMiddleware({
+  target: "http://backend:8080",
+  changeOrigin: true,
+});
+
+// Proxy API calls to backend, but keep browser HTML navigation in SPA.
+app.use(apiPaths, (req, res, next) => {
+  const accept = String(req.headers.accept || "");
+  const isHtmlNavigation = req.method === "GET" && accept.includes("text/html");
+
+  if (isHtmlNavigation) return next();
+  return apiProxy(req, res, next);
+});
 
 // -------------- Serve frontend --------------
 const distPath = path.join(__dirname, "dist");

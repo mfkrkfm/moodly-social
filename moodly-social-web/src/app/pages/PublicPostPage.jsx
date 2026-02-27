@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getPublicPost } from "../api/profileApi.js";
+import { HttpError } from "../api/http.js";
 import { PostCard } from "../components/PostCard.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
 
 export function PublicPostPage() {
   const { username, postId } = useParams();
+  const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,12 +20,16 @@ export function PublicPostPage() {
         const p = await getPublicPost(username, postId);
         setPost(p);
       } catch (e) {
+        if (e instanceof HttpError && e.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
         setError(e?.message || "Failed to load post");
       } finally {
         setLoading(false);
       }
     })();
-  }, [username, postId]);
+  }, [username, postId, navigate]);
 
   return (
     <div className="min-h-screen">
@@ -33,7 +39,12 @@ export function PublicPostPage() {
             <h1 className="text-lg font-semibold text-black/90">Post</h1>
             <p className="text-xs text-black/55">@{username}</p>
           </div>
-          <Link to={`/u/${encodeURIComponent(username)}`} className="control-pill">Back</Link>
+          <Link
+            to={`/u/${encodeURIComponent(username)}`}
+            className="control-pill"
+          >
+            Back
+          </Link>
         </div>
       </header>
 

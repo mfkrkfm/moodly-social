@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getSession } from "../api/authStore.js";
 import { HttpError } from "../api/http.js";
 import {
@@ -19,6 +19,7 @@ import { getAuthorAuraColor } from "../constants/moods.js";
 
 export function PublicProfilePage() {
   const { username } = useParams();
+  const navigate = useNavigate();
   const session = getSession();
   const me = session?.username || null;
 
@@ -49,6 +50,10 @@ export function PublicProfilePage() {
       });
       setPosts(Array.isArray(list) ? list : []);
     } catch (e) {
+      if (e instanceof HttpError && e.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
       setError(e?.message || "Failed to load profile");
     } finally {
       setLoading(false);
@@ -57,7 +62,7 @@ export function PublicProfilePage() {
 
   useEffect(() => {
     load();
-  }, [username, me]);
+  }, [username, me, navigate]);
 
   const dominantMoodColor = useMemo(
     () => getAuthorAuraColor(posts.map((p) => p.mood)),

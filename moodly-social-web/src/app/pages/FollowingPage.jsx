@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getFollowing } from "../api/profileApi.js";
+import { HttpError } from "../api/http.js";
 import { MediaImage } from "../components/MediaImage.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
 
@@ -24,6 +25,7 @@ function Avatar({ url, fallback }) {
 
 export function FollowingPage() {
   const { username } = useParams();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
 
@@ -34,10 +36,14 @@ export function FollowingPage() {
         const data = await getFollowing(username);
         setItems(Array.isArray(data) ? data : []);
       } catch (e) {
+        if (e instanceof HttpError && e.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
         setError(e?.message || "Failed to load following");
       }
     })();
-  }, [username]);
+  }, [username, navigate]);
 
   return (
     <div className="min-h-screen">
