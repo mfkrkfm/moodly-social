@@ -83,7 +83,7 @@ export function PostCard({
   };
 
   const handleSubmitComment = () => {
-    if (!commentText.trim()) return;
+    if (!onAddComment || !commentText.trim()) return;
     onAddComment(post.id, commentText.trim());
     setCommentText("");
   };
@@ -321,7 +321,8 @@ export function PostCard({
 
         <div className="flex items-center gap-1.5 pt-1">
           <button
-            onClick={() => onToggleLike(post)}
+            onClick={() => onToggleLike?.(post)}
+            disabled={!onToggleLike}
             className={`inline-flex items-center gap-1.5 rounded-full p-2 text-sm transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 ${
               post.likedByMe
                 ? "text-red-600 hover:bg-red-500/10"
@@ -344,6 +345,7 @@ export function PostCard({
 
           <button
             onClick={handleToggleComments}
+            disabled={!onLoadComments && !Array.isArray(post.comments)}
             className={`inline-flex items-center gap-1.5 rounded-full p-2 text-sm transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 ${
               showComments
                 ? "bg-black/6 text-black/80"
@@ -383,23 +385,25 @@ export function PostCard({
                   </div>
                 )}
 
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add a comment..."
-                    value={commentText}
-                    onChange={(event) => setCommentText(event.target.value)}
-                    onKeyDown={handleCommentKeyDown}
-                    className="h-10 rounded-xl border-black/10 bg-white/65 text-sm placeholder:text-black/40 focus-visible:border-black/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/20"
-                  />
-                  <Button
-                    onClick={handleSubmitComment}
-                    disabled={!commentText.trim()}
-                    size="sm"
-                    className="h-10 rounded-xl bg-black text-white transition hover:bg-black/90 active:scale-95 disabled:bg-black/10 disabled:text-black/35"
-                  >
-                    Post
-                  </Button>
-                </div>
+                {onAddComment && (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add a comment..."
+                      value={commentText}
+                      onChange={(event) => setCommentText(event.target.value)}
+                      onKeyDown={handleCommentKeyDown}
+                      className="h-10 rounded-xl border-black/10 bg-white/65 text-sm placeholder:text-black/40 focus-visible:border-black/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/20"
+                    />
+                    <Button
+                      onClick={handleSubmitComment}
+                      disabled={!commentText.trim()}
+                      size="sm"
+                      className="h-10 rounded-xl bg-black text-white transition hover:bg-black/90 active:scale-95 disabled:bg-black/10 disabled:text-black/35"
+                    >
+                      Post
+                    </Button>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -415,7 +419,7 @@ export function PostCard({
         destructive
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={() => {
-          onDelete(post.id);
+          onDelete?.(post.id);
           setDeleteModalOpen(false);
         }}
       />
