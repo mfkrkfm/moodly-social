@@ -18,11 +18,11 @@ public class SignupRequest {
     private String username;
 
     @NotBlank
-    @Email(message = "Email must be a valid email address")
+    @Email
     @Size(max = 100)
     private String email;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,100}$", message = "Password must be 8+ characters and include uppercase, lowercase, number and special character")
     private String password;
 
