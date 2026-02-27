@@ -12,6 +12,7 @@ UPDATE `profile_seq`
 SET `next_val` = @admin_profile_id + 1;
 
 INSERT INTO `users` (`email`, `password`, `username`, `profile_id`)
+--TODO: Change to .env variables
 VALUES (
   'admin@example.com',
   '$2y$12$TacDLSNxIvfp59htc3skXO8/vvzJ5BUF6n0ffmPRWKcAjdzL/u94u',
