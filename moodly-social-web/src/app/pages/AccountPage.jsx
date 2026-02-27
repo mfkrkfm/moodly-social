@@ -41,6 +41,7 @@ export function AccountPage() {
 
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [success, setSuccess] = useState(null);
 
   async function load() {
     setLoading(true);
@@ -82,6 +83,7 @@ export function AccountPage() {
   async function onSave() {
     setSaving(true);
     setError(null);
+    setSuccess(null);
     setFieldErrors({});
     try {
       const updated = await updateAccount({
@@ -91,6 +93,8 @@ export function AccountPage() {
       });
       setAccount(updated);
       setForm((f) => ({ ...f, newPassword: "" }));
+      setSuccess("Your changes have been saved successfully!");
+      setTimeout(() => setSuccess(null), 4000);
     } catch (e) {
       if (e instanceof HttpError) {
         const problem = extractProblem(e);
@@ -164,6 +168,12 @@ export function AccountPage() {
         {error && (
           <div className="rounded-2xl border border-error-border bg-error-bg/95 px-4 py-3 text-sm text-error-text whitespace-pre-line">
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 whitespace-pre-line">
+            {success}
           </div>
         )}
 
