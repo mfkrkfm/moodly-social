@@ -10,7 +10,13 @@ import { Logo } from "../components/Logo.jsx";
 
 function validatePassword(password) {
   // at least 8, uppercase, lowercase, digit, special, no spaces
-  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/.test(password);
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/.test(
+    password,
+  );
+}
+
+function validateUsername(username) {
+  return /^[A-Za-z0-9](?:[A-Za-z0-9._]{2,48}[A-Za-z0-9])?$/.test(username);
 }
 
 export function SignupPage() {
@@ -30,10 +36,18 @@ export function SignupPage() {
       password: String(form.get("password") || ""),
     };
 
+    if (!validateUsername(payload.username)) {
+      setLoading(false);
+      setError(
+        "Username must be 4-50 english characters, use letters/numbers/._, and cannot start or end with . or _.",
+      );
+      return;
+    }
+
     if (!validatePassword(payload.password)) {
       setLoading(false);
       setError(
-        "Password must be 8+ characters and include uppercase, lowercase, number and special character. No spaces."
+        "Password must be 8+ english characters and include uppercase, lowercase, number and special character. No spaces.",
       );
       return;
     }
@@ -62,8 +76,12 @@ export function SignupPage() {
 
         <Card className="glass">
           <CardContent className="p-7">
-            <h2 className="mb-1 text-xl font-semibold text-black/90">Create your account</h2>
-            <p className="mb-6 text-sm text-black/55">Start a calmer, mood-aware feed.</p>
+            <h2 className="mb-1 text-xl font-semibold text-black/90">
+              Create your account
+            </h2>
+            <p className="mb-6 text-sm text-black/55">
+              Start a calmer, mood-aware feed.
+            </p>
 
             {error && (
               <div className="mb-4 rounded-xl border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text whitespace-pre-line">
@@ -111,7 +129,8 @@ export function SignupPage() {
                   placeholder="••••••••"
                 />
                 <p className="mt-2 text-xs leading-relaxed text-black/55">
-                  Must be 8+ characters, include uppercase, lowercase, number and special character. No spaces.
+                  Must be 8+ characters, include uppercase, lowercase, number
+                  and special character. No spaces.
                 </p>
               </div>
 
@@ -125,7 +144,10 @@ export function SignupPage() {
 
               <p className="text-center text-sm text-black/55">
                 Already have an account?{" "}
-                <Link to="/login" className="font-medium text-black/85 hover:underline">
+                <Link
+                  to="/login"
+                  className="font-medium text-black/85 hover:underline"
+                >
                   Sign in
                 </Link>
               </p>
